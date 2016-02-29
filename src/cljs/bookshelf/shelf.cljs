@@ -14,8 +14,8 @@
 (defn on-edit [id title]
   (xhr/xhr
    {:method      :put
-    :url         (str "class/" id "/update")
-    :data        {:class/title title}
+    :url         (str "book/" id "/update")
+    :data        {:book/title title}
     :on-complete (fn [res]
                    (println "server response:" res))}))
 
@@ -23,24 +23,24 @@
   (om/set-state! owner :editing false)
   (cb text))
 
-(defn add-class [id title]
+(defn add-book [id title]
   (xhr/xhr
    {:method      :post
-    :url         "classes"
-    :data        {:class/id id :class/title title}
+    :url         "books"
+    :data        {:book/amazon-id id :book/title title}
     :on-complete (fn [res]
                    (println "server response:" res))}))
 
-(defn create-class [classes owner]
-  (let [class-id-el   (om/get-node owner "class-id")
-        class-id      (.-value class-id-el)
-        class-name-el (om/get-node owner "class-name")
-        class-name    (.-value class-name-el)
-        new-class     {:class/id class-id :class/title class-name}]
-    (om/transact! classes [] #(conj % new-class))
-    (set! (.-value class-id-el) "")
-    (set! (.-value class-name-el) "")
-    (add-class class-id class-name)))
+(defn create-book [books owner]
+  (let [book-id-el   (om/get-node owner "book-id")
+        book-id      (.-value book-id-el)
+        book-name-el (om/get-node owner "book-name")
+        book-name    (.-value book-name-el)
+        new-book     {:book/amazon-id book-id :book/title book-name}]
+    (om/transact! books [] #(conj % new-book))
+    (set! (.-value book-id-el) "")
+    (set! (.-value book-name-el) "")
+    (add-book book-id book-name)))
 
 (defn editable [data owner {:keys [edit-key on-edit] :as opts}]
   (reify
@@ -71,29 +71,29 @@
     (will-mount [_]
       (xhr/xhr
        {:method      :get
-        :url         "classes"
-        :on-complete #(om/transact! app :classes (fn [_] %))}))
+        :url         "books"
+        :on-complete #(om/transact! app :books (fn [_] %))}))
     om/IRender
     (render [_]
       (dom/div
-       #js {:id "classes"}
-       (dom/h2 nil "Classes")
+       #js {:id "books"}
+       (dom/h2 nil "Books")
        (apply dom/ul
               nil
-              (map (fn [class]
-                     (let [id (:class/id class)]
+              (map (fn [book]
+                     (let [id (:book/amazon-id book)]
                        (om/build editable
-                                 class
-                                 {:opts {:edit-key :class/title
+                                 book
+                                 {:opts {:edit-key :book/title
                                          :on-edit  #(on-edit id %)}})))
-                   (:classes app)))
+                   (:books app)))
        (dom/div
         nil
         (dom/label nil "ID:")
-        (dom/input #js {:ref "class-id"})
+        (dom/input #js {:ref "book-amazon-id"})
         (dom/label nil "Name:")
-        (dom/input #js {:ref "class-name"})
+        (dom/input #js {:ref "book-name"})
         (dom/button
-         #js {:onClick #(create-class (:classes app) owner)}
+         #js {:onClick #(create-book (:books app) owner)}
          "Add"))))))
 

@@ -5,8 +5,8 @@
 
 (enable-console-print!)
 
-(def app-state (atom {:classes []}))
+(def app-state (atom {:books []}))
 
 (om/root app/app
          app-state
-         {:target (.getElementById js/document "classes")})
+         {:target (.getElementById js/document "app")})

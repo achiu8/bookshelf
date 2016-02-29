@@ -18,45 +18,45 @@
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
 
-(defn classes []
+(defn books []
   (let [db (d/db conn)
-        classes
+        books
         (vec (map #(d/touch (d/entity db (first %)))
-                  (d/q '[:find ?class
+                  (d/q '[:find ?book
                          :where
-                         [?class :class/id]]
+                         [?book :book/amazon-id]]
                        db)))]
-    (generate-response classes)))
+    (generate-response books)))
 
-(defn create-class [params]
-  (let [id    (:class/id params)
-        title (:class/title params)]
-    (d/transact conn [{:db/id       #db/id[:db.part/user]
-                       :class/id    id
-                       :class/title title}])
+(defn create-book [params]
+  (let [id    (:book/amazon-id params)
+        title (:book/title params)]
+    (d/transact conn [{:db/id          #db/id[:db.part/user]
+                       :book/amazon-id id
+                       :book/title     title}])
     (generate-response {:status :ok})))
 
-(defn update-class [id params]
+(defn update-book [id params]
   (let [db    (d/db conn)
-        title (:class/title params)
+        title (:book/title params)
         eid   (ffirst
-               (d/q '[:find ?class
+               (d/q '[:find ?book
                       :in $ ?id
                       :where 
-                      [?class :class/id ?id]]
+                      [?book :book/amazon-id ?id]]
                     db id))]
-    (d/transact conn [[:db/add eid :class/title title]])
+    (d/transact conn [[:db/add eid :book/title title]])
     (generate-response {:status :ok})))
 
 (defroutes routes
-  (GET  "/"        [] (index))
-  (GET  "/classes" [] (classes))
-  (POST "/classes"
+  (GET  "/"      [] (index))
+  (GET  "/books" [] (books))
+  (POST "/books"
         {edn-body :edn-body}
-        (create-class edn-body))
-  (PUT  "/class/:id/update"
+        (create-book edn-body))
+  (PUT  "/book/:id/update"
         {params :params edn-body :edn-body}
-        (update-class (:id params) edn-body))
+        (update-book (:id params) edn-body))
   (route/files "/" {:root "resources/public"}))
 
 (defn read-inputstream-edn [input]

@@ -17,6 +17,9 @@
 (defn create-db []
   (d/create-database uri))
 
+(defn delete-db []
+  (d/delete-database uri))
+
 (defn get-conn []
   (d/connect uri))
 
