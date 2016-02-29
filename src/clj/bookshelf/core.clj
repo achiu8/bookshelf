@@ -10,13 +10,23 @@
 (def uri "datomic:free://localhost:4334/bookshelf")
 (def conn (d/connect uri))
 
-(defn index []
-  (file-response "public/html/index.html" {:root "resources"}))
-
 (defn generate-response [data & [status]]
   {:status  (or status 200)
    :headers {"Content-Type" "application/edn"}
    :body    (pr-str data)})
+
+(defn index []
+  (file-response "public/html/index.html" {:root "resources"}))
+
+(defn classes []
+  (let [db (d/db conn)
+        classes
+        (vec (map #(d/touch (d/entity db (first %)))
+                  (d/q '[:find ?class
+                         :where
+                         [?class :class/id]]
+                       db)))]
+    (generate-response classes)))
 
 (defn create-class [params]
   (let [id    (:class/id params)
@@ -37,16 +47,6 @@
                     db id))]
     (d/transact conn [[:db/add eid :class/title title]])
     (generate-response {:status :ok})))
-
-(defn classes []
-  (let [db (d/db conn)
-        classes
-        (vec (map #(d/touch (d/entity db (first %)))
-                  (d/q '[:find ?class
-                         :where
-                         [?class :class/id]]
-                       db)))]
-    (generate-response classes)))
 
 (defroutes routes
   (GET  "/"        [] (index))
