@@ -1,7 +1,7 @@
 (ns bookshelf.core
   (:require [ring.util.response :refer [file-response]]
             [ring.adapter.jetty :refer [run-jetty]]
-            [compojure.core :refer [defroutes GET PUT]]
+            [compojure.core :refer [defroutes GET POST PUT]]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.edn :as edn]
@@ -17,6 +17,14 @@
   {:status  (or status 200)
    :headers {"Content-Type" "application/edn"}
    :body    (pr-str data)})
+
+(defn create-class [params]
+  (let [id    (:class/id params)
+        title (:class/title params)]
+    (d/transact conn [{:db/id       #db/id[:db.part/user]
+                       :class/id    id
+                       :class/title title}])
+    (generate-response {:status :ok})))
 
 (defn update-class [id params]
   (let [db    (d/db conn)
@@ -41,11 +49,14 @@
     (generate-response classes)))
 
 (defroutes routes
-  (GET "/"        [] (index))
-  (GET "/classes" [] (classes))
-  (PUT "/class/:id/update"
-       {params :params edn-body :edn-body}
-       (update-class (:id params) edn-body))
+  (GET  "/"        [] (index))
+  (GET  "/classes" [] (classes))
+  (POST "/classes"
+        {edn-body :edn-body}
+        (create-class edn-body))
+  (PUT  "/class/:id/update"
+        {params :params edn-body :edn-body}
+        (update-class (:id params) edn-body))
   (route/files "/" {:root "resources/public"}))
 
 (defn read-inputstream-edn [input]
