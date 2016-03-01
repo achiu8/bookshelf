@@ -16,7 +16,7 @@
   (xhr/xhr
    {:method      :post
     :url         "books"
-    :data        {:book/amazon-id id :book/title title}
+    :data        {:book/id id :book/title title}
     :on-complete (fn [res]
                    (println "server response:" res))}))
 
@@ -25,7 +25,7 @@
         book-id      (.-value book-id-el)
         book-name-el (om/get-node owner "book-name")
         book-name    (.-value book-name-el)
-        new-book     {:book/amazon-id book-id :book/title book-name}]
+        new-book     {:book/id book-id :book/title book-name}]
     (om/transact! books [] #(conj % new-book))
     (set! (.-value book-id-el) "")
     (set! (.-value book-name-el) "")

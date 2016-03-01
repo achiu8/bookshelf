@@ -1,26 +1,26 @@
 [{:db/id #db/id[:db.part/user]
   :book/title "To Mock a Mockingbird: And Other Logic Puzzles"
-  :book/amazon-id "0192801422"
+  :book/id "194769"
   :book/author "Raymond M. Smullyan"
   :book/genre "Logic"}
  {:db/id #db/id[:db.part/user]
   :book/title "The Housekeeper and the Professor"
-  :book/amazon-id "0312427808"
+  :book/id "3181564"
   :book/author "Yoko Ogawa"
   :book/genre "Fiction"}
  {:db/id #db/id[:db.part/user]
   :book/title "Gravity's Rainbow"
-  :book/amazon-id "0143039946"
+  :book/id "415"
   :book/author "Thomas Pynchon"
   :book/genre "Fiction"}
  {:db/id #db/id[:db.part/user]
   :book/title "Chaos: Making a New Science"
-  :book/amazon-id "0143113453"
+  :book/id "64582"
   :book/author "James Gleick"
   :book/genre "Physics"}
  {:db/id #db/id[:db.part/user]
   :book/title "Flash Boys: A Wall Street Revolt"
-  :book/amazon-id "0393351599"
+  :book/id "24724602"
   :book/author "Michael Lewis"
   :book/genre "History"}
  ]

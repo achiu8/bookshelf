@@ -40,15 +40,15 @@
         (vec (map #(d/touch (d/entity db (first %)))
                   (d/q '[:find ?book
                          :where
-                         [?book :book/amazon-id]]
+                         [?book :book/id]]
                        db)))]
     (generate-response books)))
 
 (defn create-book [params]
-  (let [id    (:book/amazon-id params)
+  (let [id    (:book/id params)
         title (:book/title params)]
     (d/transact conn [{:db/id          #db/id[:db.part/user]
-                       :book/amazon-id id
+                       :book/id id
                        :book/title     title}])
     (generate-response {:status :ok})))
 
@@ -59,7 +59,7 @@
                (d/q '[:find ?book
                       :in $ ?id
                       :where 
-                      [?book :book/amazon-id ?id]]
+                      [?book :book/id ?id]]
                     db id))]
     (d/transact conn [[:db/add eid :book/title title]])
     (generate-response {:status :ok})))
