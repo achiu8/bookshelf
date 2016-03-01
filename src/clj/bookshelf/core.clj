@@ -5,7 +5,10 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.edn :as edn]
-            [datomic.api :as d]))
+            [clojure.xml :as xml]
+            [clojure.zip :as zip]
+            [datomic.api :as d])
+  (:import [java.net URLEncoder]))
 
 (def uri "datomic:free://localhost:4334/bookshelf")
 (def conn (d/connect uri))
@@ -14,6 +17,19 @@
   {:status  (or status 200)
    :headers {"Content-Type" "application/edn"}
    :body    (pr-str data)})
+
+(defn read-inputstream-edn [input]
+  (edn/read
+   {:eof nil}
+   (java.io.PushbackReader.
+    (java.io.InputStreamReader. input "UTF-8"))))
+
+(defn parse-edn-body [handler]
+  (fn [request]
+    (handler (if-let [body (:body request)]
+               (assoc request
+                 :edn-body (read-inputstream-edn body))
+               request))))
 
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
@@ -48,9 +64,41 @@
     (d/transact conn [[:db/add eid :book/title title]])
     (generate-response {:status :ok})))
 
+(defn get-tag [tag results]
+  (filter #(= (:tag %) tag) results))
+
+(defn extract-books [parsed]
+  (->> parsed
+       first
+       :content
+       second
+       :content
+       (get-tag :results)
+       first
+       :content
+       (map :content)
+       (map #(get-tag :best_book %))
+       (map first)
+       (map :content)
+       (map (fn [result]
+              {:id (first (:content (first (get-tag :id result))))
+               :title (first (:content (first (get-tag :title result))))
+               :author (first (:content (second (:content (first (get-tag :author result))))))}))))
+
+(defn search [search]
+  (let [query (URLEncoder/encode search "UTF-8")
+        results (slurp
+                 (str "https://www.goodreads.com/search/index.xml?key=mg5D9xctXLfojpfmQuBuQ&q="
+                      query))
+        parsed (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes results))))]
+    (generate-response (extract-books parsed))))
+
 (defroutes routes
   (GET  "/"      [] (index))
   (GET  "/books" [] (books))
+  (GET  "/search/:search"
+        {params :params}
+        (search (:search params)))
   (POST "/books"
         {edn-body :edn-body}
         (create-book edn-body))
@@ -58,19 +106,6 @@
         {params :params edn-body :edn-body}
         (update-book (:id params) edn-body))
   (route/files "/" {:root "resources/public"}))
-
-(defn read-inputstream-edn [input]
-  (edn/read
-   {:eof nil}
-   (java.io.PushbackReader.
-    (java.io.InputStreamReader. input "UTF-8"))))
-
-(defn parse-edn-body [handler]
-  (fn [request]
-    (handler (if-let [body (:body request)]
-               (assoc request
-                 :edn-body (read-inputstream-edn body))
-               request))))
 
 (def handler 
   (-> routes

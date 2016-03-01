@@ -11,6 +11,7 @@
     :data        {:book/title title}
     :on-complete (fn [res]
                    (println "server response:" res))}))
+
 (defn add-book [id title]
   (xhr/xhr
    {:method      :post
@@ -47,6 +48,32 @@
           (dom/th nil "Genre"))
          (map book books)))
 
+(defn throttle [f owner]
+  (fn [& args]
+    (when-not (om/get-state owner :throttled)
+      (apply f args)
+      (om/set-state! owner :throttled true)
+      (js/setTimeout #(om/set-state! owner :throttled false) 1000))))
+
+; (defn search [books owner]
+;   (let [search-term-input (om/get-node owner "search-term")
+;         search-term       (.-value search-term-input)]
+;     (xhr/xhr
+;      {:method :get
+;       :url (str "search/" search-term)
+;       :on-complete (fn [res] (om/transact! books (fn [_] res)))})))
+
+(defn search-2 [books owner]
+  ())
+
+(defn search [books owner]
+  (let [search-term-input (om/get-node owner "search-term")
+        search-term       (.-value search-term-input)]
+    (xhr/xhr
+     {:method :get
+      :url (str "search/" search-term)
+      :on-complete (fn [res] (println res))})))
+
 (defn shelf [app owner]
   (reify
     om/IWillMount
@@ -63,11 +90,14 @@
        (books (:books app))
        (dom/div
         nil
-        (dom/label nil "Title:")
+        (dom/label nil "Title: ")
         (dom/input #js {:ref "book-name"})
-        (dom/label nil "ID:")
-        (dom/input #js {:ref "book-amazon-id"})
+        (dom/label nil "ID: ")
+        (dom/input #js {:ref "book-id"})
+        (dom/input
+         #js {:ref "search-term"
+              :onKeyUp #((throttle search-2 owner) (:books app) owner)})
         (dom/button
-         #js {:onClick #(create-book (:books app) owner)}
+         #js {:onClick #(search (:books app) owner)}
          "Add"))))))
 
