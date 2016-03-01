@@ -34,9 +34,14 @@
 (defn book [book]
   (dom/tr
    nil
-   (dom/td nil(:book/title book))
-   (dom/td nil(:book/author book))
-   (dom/td nil(:book/genre book))))
+   (dom/td
+    nil
+    (dom/a
+     #js {:href (str "https://www.goodreads.com/book/show/"
+                     (:book/id book))}
+     (:book/title book)))
+   (dom/td nil (:book/author book))
+   (dom/td nil (:book/genre book))))
 
 (defn books [books]
   (apply dom/table
@@ -53,51 +58,51 @@
     (when-not (om/get-state owner :throttled)
       (apply f args)
       (om/set-state! owner :throttled true)
-      (js/setTimeout #(om/set-state! owner :throttled false) 1000))))
-
-; (defn search [books owner]
-;   (let [search-term-input (om/get-node owner "search-term")
-;         search-term       (.-value search-term-input)]
-;     (xhr/xhr
-;      {:method :get
-;       :url (str "search/" search-term)
-;       :on-complete (fn [res] (om/transact! books (fn [_] res)))})))
-
-(defn search-2 [books owner]
-  ())
+      (js/setTimeout #(om/set-state! owner :throttled false) 500))))
 
 (defn search [books owner]
   (let [search-term-input (om/get-node owner "search-term")
         search-term       (.-value search-term-input)]
-    (xhr/xhr
-     {:method :get
-      :url (str "search/" search-term)
-      :on-complete (fn [res] (println res))})))
+    (when-not (zero? (count search-term))
+      (xhr/xhr
+       {:method :get
+        :url (str "search/" search-term)
+        :on-complete #(om/set-state! owner :results %)}))))
+
+(defn search-result [result owner]
+  (dom/div
+   nil
+   (:title result)))
+
+(defn search-results [results owner]
+  (apply dom/div
+         nil
+         (map search-result results)))
 
 (defn shelf [app owner]
   (reify
+    om/IInitState
+    (init-state [_]
+      {:results []})
     om/IWillMount
     (will-mount [_]
       (xhr/xhr
        {:method      :get
         :url         "books"
         :on-complete #(om/transact! app :books (fn [_] %))}))
-    om/IRender
-    (render [_]
+    om/IRenderState
+    (render-state [_ {:keys [results]}]
       (dom/div
        #js {:id "books"}
        (dom/h2 nil "Books")
        (books (:books app))
        (dom/div
         nil
-        (dom/label nil "Title: ")
-        (dom/input #js {:ref "book-name"})
-        (dom/label nil "ID: ")
-        (dom/input #js {:ref "book-id"})
         (dom/input
          #js {:ref "search-term"
-              :onKeyUp #((throttle search-2 owner) (:books app) owner)})
+              :onKeyUp #((throttle search owner) (:books app) owner)})
         (dom/button
          #js {:onClick #(search (:books app) owner)}
-         "Add"))))))
+         "Search"))
+       (search-results results owner)))))
 
