@@ -4,4 +4,7 @@
             [bookshelf.shelf :as shelf]))
 
 (defn app [app owner]
-  (shelf/shelf app owner))
+  (reify
+    om/IRender
+    (render [_]
+      (om/build shelf/shelf app))))

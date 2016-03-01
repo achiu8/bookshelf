@@ -2,7 +2,8 @@
     (:require [om.core :as om :include-macros true]
               [om.dom :as dom :include-macros true]
               [bookshelf.xhr :as xhr]
-              [bookshelf.editable :as editable]))
+              [bookshelf.editable :as editable]
+              [bookshelf.search :as search]))
 
 (defn on-edit [id title]
   (xhr/xhr
@@ -53,56 +54,18 @@
           (dom/th nil "Genre"))
          (map book books)))
 
-(defn throttle [f owner]
-  (fn [& args]
-    (when-not (om/get-state owner :throttled)
-      (apply f args)
-      (om/set-state! owner :throttled true)
-      (js/setTimeout #(om/set-state! owner :throttled false) 500))))
-
-(defn search [books owner]
-  (let [search-term-input (om/get-node owner "search-term")
-        search-term       (.-value search-term-input)]
-    (when-not (zero? (count search-term))
-      (xhr/xhr
-       {:method :get
-        :url (str "search/" search-term)
-        :on-complete #(om/set-state! owner :results %)}))))
-
-(defn search-result [result owner]
-  (dom/div
-   nil
-   (:title result)))
-
-(defn search-results [results owner]
-  (apply dom/div
-         nil
-         (map search-result results)))
-
 (defn shelf [app owner]
   (reify
-    om/IInitState
-    (init-state [_]
-      {:results []})
     om/IWillMount
     (will-mount [_]
       (xhr/xhr
        {:method      :get
         :url         "books"
         :on-complete #(om/transact! app :books (fn [_] %))}))
-    om/IRenderState
-    (render-state [_ {:keys [results]}]
+    om/IRender
+    (render [_]
       (dom/div
        #js {:id "books"}
        (dom/h2 nil "Books")
        (books (:books app))
-       (dom/div
-        nil
-        (dom/input
-         #js {:ref "search-term"
-              :onKeyUp #((throttle search owner) (:books app) owner)})
-        (dom/button
-         #js {:onClick #(search (:books app) owner)}
-         "Search"))
-       (search-results results owner)))))
-
+       (om/build search/search app)))))
