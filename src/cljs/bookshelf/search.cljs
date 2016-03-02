@@ -15,17 +15,30 @@
         search-term       (.-value search-term-input)]
     (when-not (empty? search-term)
       (xhr/xhr
-       {:method :get
-        :url (str "search/" search-term)
+       {:method      :get
+        :url         (str "search/" search-term)
         :on-complete #(om/set-state! owner :results %)}))))
 
-(defn search-result [result]
-  (dom/div nil (:title result)))
+(defn select-result [{:keys [id title author]} app owner]
+  (let [selected {:book/id id :book/title title :book/author author}]
+    (om/transact! (:books app) [] #(conj % selected))
+    (om/set-state! owner :results [])
+    (xhr/xhr
+     {:method      :post
+      :url         "books"
+      :data        selected
+      :on-complete (fn [res]
+                     (println "server response:" res))})))
 
-(defn search-results [results]
+(defn search-result [result app owner]
+  (dom/div
+   #js {:onClick #(select-result result app owner)}
+   (:title result)))
+
+(defn search-results [results app owner]
   (apply dom/div
          nil
-         (map search-result results)))
+         (map #(search-result % app owner) results)))
 
 (defn search [app owner]
   (reify
@@ -43,4 +56,4 @@
         (dom/button
          #js {:onClick #(submit-search (:books app) owner)}
          "Search")
-        (search-results results)))))
+        (search-results results app owner)))))

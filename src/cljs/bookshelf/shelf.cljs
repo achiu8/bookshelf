@@ -13,25 +13,6 @@
     :on-complete (fn [res]
                    (println "server response:" res))}))
 
-(defn add-book [id title]
-  (xhr/xhr
-   {:method      :post
-    :url         "books"
-    :data        {:book/id id :book/title title}
-    :on-complete (fn [res]
-                   (println "server response:" res))}))
-
-(defn create-book [books owner]
-  (let [book-id-el   (om/get-node owner "book-id")
-        book-id      (.-value book-id-el)
-        book-name-el (om/get-node owner "book-name")
-        book-name    (.-value book-name-el)
-        new-book     {:book/id book-id :book/title book-name}]
-    (om/transact! books [] #(conj % new-book))
-    (set! (.-value book-id-el) "")
-    (set! (.-value book-name-el) "")
-    (add-book book-id book-name)))
-
 (defn book [book]
   (dom/tr
    nil
@@ -41,8 +22,7 @@
      #js {:href (str "https://www.goodreads.com/book/show/"
                      (:book/id book))}
      (:book/title book)))
-   (dom/td nil (:book/author book))
-   (dom/td nil (:book/genre book))))
+   (dom/td nil (:book/author book))))
 
 (defn books [books]
   (apply dom/table
@@ -50,8 +30,7 @@
          (dom/tr
           nil
           (dom/th nil "Title")
-          (dom/th nil "Author")
-          (dom/th nil "Genre"))
+          (dom/th nil "Author"))
          (map book books)))
 
 (defn shelf [app owner]

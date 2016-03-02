@@ -45,11 +45,13 @@
     (generate-response books)))
 
 (defn create-book [params]
-  (let [id    (:book/id params)
-        title (:book/title params)]
-    (d/transact conn [{:db/id          #db/id[:db.part/user]
-                       :book/id id
-                       :book/title     title}])
+  (let [id     (:book/id params)
+        title  (:book/title params)
+        author (:book/author params)]
+    (d/transact conn [{:db/id       #db/id[:db.part/user]
+                       :book/id     id
+                       :book/title  title
+                       :book/author author}])
     (generate-response {:status :ok})))
 
 (defn update-book [id params]
