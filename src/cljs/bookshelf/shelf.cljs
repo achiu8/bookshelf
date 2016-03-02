@@ -6,21 +6,14 @@
               [bookshelf.search :as search]))
 
 (defn edit-book [id title]
-  (xhr/xhr
-   {:method      :put
-    :url         (str "book/" id "/update")
-    :data        {:book/title title}
-    :on-complete (fn [res]
-                   (println "server response:" res))}))
+  (xhr/xhr {:method :put
+            :url    (str "book/" id "/update")
+            :data   {:book/title title}}))
 
 (defn delete-book [id books]
   (om/transact! books [] #(vec (remove (fn [book] (= id (:book/id book))) %)))
-  (xhr/xhr
-   {:method      :delete
-    :url         (str "book/" id "/delete")
-    :data        {:book/id id}
-    :on-complete (fn [res]
-                   (println "server response:" res))}))
+  (xhr/xhr {:method :delete
+            :url    (str "book/" id "/delete")}))
 
 (defn book [book books]
   (dom/tr
@@ -51,10 +44,9 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (xhr/xhr
-       {:method      :get
-        :url         "books"
-        :on-complete #(om/transact! app :books (fn [_] %))}))
+      (xhr/xhr {:method      :get
+                :url         "books"
+                :on-complete #(om/transact! app :books (fn [_] %))}))
     om/IRender
     (render [_]
       (dom/div

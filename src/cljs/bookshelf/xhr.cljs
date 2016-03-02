@@ -15,7 +15,7 @@
   (let [xhr-io (XhrIo.)]
     (events/listen xhr-io
                    goog.net.EventType.COMPLETE
-                   #(on-complete (reader/read-string (.getResponseText xhr-io))))
+                   #(when on-complete (on-complete (reader/read-string (.getResponseText xhr-io)))))
     (. xhr-io
        (send url
              (meths method)
