@@ -30,15 +30,27 @@
       :on-complete (fn [res]
                      (println "server response:" res))})))
 
-(defn search-result [result app owner]
-  (dom/div
-   #js {:onClick #(select-result result app owner)}
-   (:title result)))
+(defn search-result [result owner {:keys [app parent]}]
+  (reify
+    om/IInitState
+    (init-state [_]
+      {:hovered false})
+    om/IRenderState
+    (render-state [_ {:keys [hovered]}]
+      (dom/div
+       #js {:style #js {:cursor "pointer"
+                        :font-weight (when hovered "bold")}
+            :onClick #(select-result result app parent)
+            :onMouseOver #(om/set-state! owner :hovered true)
+            :onMouseOut #(om/set-state! owner :hovered false)}
+       (:title result)))))
 
 (defn search-results [results app owner]
   (apply dom/div
          nil
-         (map #(search-result % app owner) results)))
+         (om/build-all search-result
+                       results
+                       {:opts {:app app :parent owner}})))
 
 (defn search [app owner]
   (reify
