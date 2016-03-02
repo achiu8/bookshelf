@@ -83,21 +83,14 @@
 
 (defn extract-books [parsed]
   (->> parsed
-       first
-       :content
-       second
-       :content
+       first :content second :content
        (get-tag :results)
-       first
-       :content
-       (map :content)
-       (map #(get-tag :best_book %))
-       (map first)
-       (map :content)
-       (map (fn [result]
-              {:id (first (:content (first (get-tag :id result))))
-               :title (first (:content (first (get-tag :title result))))
-               :author (first (:content (second (:content (first (get-tag :author result))))))}))))
+       first :content
+       (map (fn [data]
+              (let [result (:content (first (get-tag :best_book (:content data))))]
+                {:id     (first (:content (first (get-tag :id result))))
+                 :title  (first (:content (first (get-tag :title result))))
+                 :author (first (:content (second (:content (first (get-tag :author result))))))})))))
 
 (defn search [search]
   (let [query (URLEncoder/encode search "UTF-8")
