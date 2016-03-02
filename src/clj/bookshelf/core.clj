@@ -1,7 +1,7 @@
 (ns bookshelf.core
   (:require [ring.util.response :refer [file-response]]
             [ring.adapter.jetty :refer [run-jetty]]
-            [compojure.core :refer [defroutes GET POST PUT]]
+            [compojure.core :refer [defroutes GET POST PUT DELETE]]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.edn :as edn]
@@ -66,6 +66,18 @@
     (d/transact conn [[:db/add eid :book/title title]])
     (generate-response {:status :ok})))
 
+(defn delete-book [id]
+  (let [db  (d/db conn)
+        eid (ffirst
+             (d/q '[:find ?book
+                    :in $ ?id
+                    :where
+                    [?book :book/id ?id]]
+                  db id))]
+    (d/transact conn [{:db/id     #db/id[:db.part/user]
+                       :db/excise eid}])
+    (generate-response {:status :ok})))
+
 (defn get-tag [tag results]
   (filter #(= (:tag %) tag) results))
 
@@ -96,17 +108,20 @@
     (generate-response (extract-books parsed))))
 
 (defroutes routes
-  (GET  "/"      [] (index))
-  (GET  "/books" [] (books))
-  (GET  "/search/:search"
-        {params :params}
-        (search (:search params)))
-  (POST "/books"
-        {edn-body :edn-body}
-        (create-book edn-body))
-  (PUT  "/book/:id/update"
-        {params :params edn-body :edn-body}
-        (update-book (:id params) edn-body))
+  (GET    "/"      [] (index))
+  (GET    "/books" [] (books))
+  (GET    "/search/:search"
+          {params :params}
+          (search (:search params)))
+  (POST   "/books"
+          {edn-body :edn-body}
+          (create-book edn-body))
+  (PUT    "/book/:id/update"
+          {params :params edn-body :edn-body}
+          (update-book (:id params) edn-body))
+  (DELETE "/book/:id/delete"
+          {params :params}
+          (delete-book (:id params)))
   (route/files "/" {:root "resources/public"}))
 
 (def handler 

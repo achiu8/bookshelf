@@ -33,8 +33,7 @@
 (defn search-result [result owner {:keys [app parent]}]
   (reify
     om/IInitState
-    (init-state [_]
-      {:hovered false})
+    (init-state [_] {:hovered false})
     om/IRenderState
     (render-state [_ {:keys [hovered]}]
       (dom/div
@@ -65,7 +64,4 @@
         (dom/input
          #js {:ref     "search-term"
               :onKeyUp #((throttle submit-search owner) (:books app) owner)})
-        (dom/button
-         #js {:onClick #(submit-search (:books app) owner)}
-         "Search")
         (search-results results app owner)))))

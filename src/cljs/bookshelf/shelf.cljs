@@ -5,7 +5,7 @@
               [bookshelf.editable :as editable]
               [bookshelf.search :as search]))
 
-(defn on-edit [id title]
+(defn edit-book [id title]
   (xhr/xhr
    {:method      :put
     :url         (str "book/" id "/update")
@@ -13,7 +13,16 @@
     :on-complete (fn [res]
                    (println "server response:" res))}))
 
-(defn book [book]
+(defn delete-book [id books]
+  (om/transact! books [] #(vec (remove (fn [book] (= id (:book/id book))) %)))
+  (xhr/xhr
+   {:method      :delete
+    :url         (str "book/" id "/delete")
+    :data        {:book/id id}
+    :on-complete (fn [res]
+                   (println "server response:" res))}))
+
+(defn book [book books]
   (dom/tr
    nil
    (dom/td
@@ -22,7 +31,12 @@
      #js {:href (str "https://www.goodreads.com/book/show/"
                      (:book/id book))}
      (:book/title book)))
-   (dom/td nil (:book/author book))))
+   (dom/td nil (:book/author book))
+   (dom/td
+    nil
+    (dom/button
+     #js {:onClick #(delete-book (:book/id book) books)}
+     "Delete"))))
 
 (defn books [books]
   (apply dom/table
@@ -31,7 +45,7 @@
           nil
           (dom/th nil "Title")
           (dom/th nil "Author"))
-         (map book books)))
+         (map #(book % books) books)))
 
 (defn shelf [app owner]
   (reify
