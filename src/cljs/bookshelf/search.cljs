@@ -1,6 +1,6 @@
 (ns bookshelf.search
     (:require [om.core :as om :include-macros true]
-              [om.dom :as dom :include-macros true]
+              [sablono.core :as html :refer-macros [html]]
               [bookshelf.xhr :as xhr]))
 
 (defn throttle [f owner]
@@ -32,20 +32,21 @@
     (init-state [_] {:hovered false})
     om/IRenderState
     (render-state [_ {:keys [hovered]}]
-      (dom/div
-       #js {:style #js {:cursor "pointer"
-                        :font-weight (when hovered "bold")}
-            :onClick #(select-result result app parent)
-            :onMouseOver #(om/set-state! owner :hovered true)
-            :onMouseOut #(om/set-state! owner :hovered false)}
-       (:title result)))))
+      (html
+       [:div
+        {:style {:cursor "pointer"
+                 :font-weight (when hovered "bold")}
+         :on-click      #(select-result result app parent)
+         :on-mouse-over #(om/set-state! owner :hovered true)
+         :on-mouse-out  #(om/set-state! owner :hovered false)}
+        (:title result)]))))
 
 (defn search-results [results app owner]
-  (apply dom/div
-         nil
-         (om/build-all search-result
-                       results
-                       {:opts {:app app :parent owner}})))
+  (html
+   [:div
+    (om/build-all search-result
+                  results
+                  {:opts {:app app :parent owner}})]))
 
 (defn search [app owner]
   (reify
@@ -55,9 +56,9 @@
        :throttled false})
     om/IRenderState
     (render-state [_ {:keys [results]}]
-      (dom/div
-        nil
-        (dom/input
-         #js {:ref     "search-term"
-              :onKeyUp #((throttle submit-search owner) (:books app) owner)})
-        (search-results results app owner)))))
+      (html
+       [:div
+        [:input
+         {:ref       "search-term"
+          :on-key-up #((throttle submit-search owner) (:books app) owner)}]
+        (search-results results app owner)]))))

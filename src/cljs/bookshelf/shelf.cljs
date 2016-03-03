@@ -1,6 +1,6 @@
 (ns bookshelf.shelf
     (:require [om.core :as om :include-macros true]
-              [om.dom :as dom :include-macros true]
+              [sablono.core :as html :refer-macros [html]]
               [bookshelf.xhr :as xhr]
               [bookshelf.editable :as editable]
               [bookshelf.search :as search]))
@@ -16,29 +16,25 @@
             :url    (str "book/" id "/delete")}))
 
 (defn book [book books]
-  (dom/tr
-   nil
-   (dom/td
-    nil
-    (dom/a
-     #js {:href (str "https://www.goodreads.com/book/show/"
+  (html
+   [:tr
+    [:td
+     [:a {:href (str "https://www.goodreads.com/book/show/"
                      (:book/id book))}
-     (:book/title book)))
-   (dom/td nil (:book/author book))
-   (dom/td
-    nil
-    (dom/button
-     #js {:onClick #(delete-book (:book/id book) books)}
-     "Delete"))))
+      (:book/title book)]]
+    [:td (:book/author book)]
+    [:td
+     [:button {:on-click #(delete-book (:book/id book) books)}
+      "Delete"]]]))
 
 (defn books [books]
-  (apply dom/table
-         nil
-         (dom/tr
-          nil
-          (dom/th nil "Title")
-          (dom/th nil "Author"))
-         (map #(book % books) books)))
+  (html
+   [:table
+    [:tbody
+     [:tr
+      [:th "Title"]
+      [:th "Author"]]
+     (map #(book % books) books)]]))
 
 (defn shelf [app owner]
   (reify
@@ -49,8 +45,8 @@
                 :on-complete #(om/transact! app :books (fn [_] %))}))
     om/IRender
     (render [_]
-      (dom/div
-       #js {:id "books"}
-       (dom/h2 nil "Books")
-       (books (:books app))
-       (om/build search/search app)))))
+      (html
+       [:div#shelf
+        [:h2 "Books"]
+        (books (:books app))
+        (om/build search/search app)]))))

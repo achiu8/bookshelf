@@ -1,11 +1,10 @@
 (ns bookshelf.editable
     (:require [om.core :as om :include-macros true]
+              [sablono.core :as html :refer-macros [html]]
               [om.dom :as dom :include-macros true]))
 
 (defn display [show]
-  (if show
-    #js {}
-    #js {:display "none"}))
+  (if show {} {:display "none"}))
 
 (defn handle-change [e data edit-key owner]
   (om/transact! data edit-key #(.. e -target -value)))
@@ -22,17 +21,18 @@
     om/IRenderState
     (render-state [_ {:keys [editing]}]
       (let [text (get data edit-key)]
-        (dom/li nil
-                (dom/span #js {:style (display (not editing))} text)
-                (dom/input
-                 #js {:style     (display editing)
-                      :value     text
-                      :onChange  #(handle-change % data edit-key owner)
-                      :onKeyDown #(when (= (.-key %) "Enter")
-                                    (end-edit text owner on-edit))
-                      :onBlur    #(when (om/get-state owner :editing)
-                                    (end-edit text owner on-edit))})
-                (dom/button
-                 #js {:style   (display (not editing))
-                      :onClick #(om/set-state! owner :editing true)}
-                 "Edit"))))))
+        (html
+         [:li
+          [:span {:style (display (not editing))} text]
+          [:input
+           {:style       (display editing)
+            :value       text
+            :on-change   #(handle-change % data edit-key owner)
+            :on-key-down #(when (= (.-key %) "Enter")
+                            (end-edit text owner on-edit))
+            :on-blur     #(when (om/get-state owner :editing)
+                            (end-edit text owner on-edit))}]
+          [:button
+           {:style   (display (not editing))
+            :on-click #(om/set-state! owner :editing true)}
+           "Edit"]])))))
