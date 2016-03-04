@@ -1,6 +1,5 @@
 (ns bookshelf.routes
-  (:require [om.core :as om :include-macros true]
-            [secretary.core :as secretary :refer-macros [defroute]]
+  (:require [secretary.core :as secretary :refer-macros [defroute]]
             [goog.events :as events]
             [goog.history.EventType :as EventType])
   (:import goog.History))
