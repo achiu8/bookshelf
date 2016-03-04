@@ -15,7 +15,8 @@
                  [com.datomic/datomic-free "0.9.5350" :exclusions [joda-time]]
                  [cljsjs/react "0.14.3-0"]
                  [cljsjs/react-dom "0.14.3-1"]
-                 [sablono "0.6.2"]]
+                 [sablono "0.6.2"]
+                 [secretary "1.2.3"]]
 
   :plugins [[lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0"]]
