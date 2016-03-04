@@ -1,9 +1,8 @@
 (ns bookshelf.shelf
-    (:require [om.core :as om :include-macros true]
-              [sablono.core :as html :refer-macros [html]]
-              [bookshelf.xhr :as xhr]
-              [bookshelf.editable :as editable]
-              [bookshelf.search :as search]))
+  (:require [om.core :as om :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
+            [bookshelf.xhr :as xhr]
+            [bookshelf.search :as search]))
 
 (defn edit-book [id title]
   (xhr/xhr {:method :put

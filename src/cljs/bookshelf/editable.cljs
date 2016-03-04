@@ -1,7 +1,7 @@
 (ns bookshelf.editable
-    (:require [om.core :as om :include-macros true]
-              [sablono.core :as html :refer-macros [html]]
-              [om.dom :as dom :include-macros true]))
+  (:require [om.core :as om :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
+            [om.dom :as dom :include-macros true]))
 
 (defn display [show]
   (if show {} {:display "none"}))

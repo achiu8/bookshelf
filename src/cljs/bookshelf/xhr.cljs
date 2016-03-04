@@ -1,9 +1,9 @@
 (ns bookshelf.xhr
-    (:require [cljs.reader :as reader]
-              [goog.events :as events])
-    (:import [goog.net XhrIo]
-             goog.net.EventType
-             [goog.events EventType]))
+  (:require [cljs.reader :as reader]
+            [goog.events :as events])
+  (:import [goog.net XhrIo]
+           goog.net.EventType
+           [goog.events EventType]))
 
 (def ^:private meths
   {:get    "GET"

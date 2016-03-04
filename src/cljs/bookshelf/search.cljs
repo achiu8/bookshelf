@@ -1,7 +1,7 @@
 (ns bookshelf.search
-    (:require [om.core :as om :include-macros true]
-              [sablono.core :as html :refer-macros [html]]
-              [bookshelf.xhr :as xhr]))
+  (:require [om.core :as om :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
+            [bookshelf.xhr :as xhr]))
 
 (defn throttle [f owner]
   (fn [& args]
