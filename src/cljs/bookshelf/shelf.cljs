@@ -2,6 +2,7 @@
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
             [bookshelf.xhr :as xhr]
+            [bookshelf.routes :as routes]
             [bookshelf.search :as search]))
 
 (defn edit-book [id title]
@@ -18,8 +19,7 @@
   (html
    [:tr
     [:td
-     [:a {:href (str "https://www.goodreads.com/book/show/"
-                     (:book/id book))}
+     [:a {:href (routes/book-path {:id (:book/id book)})}
       (:book/title book)]]
     [:td (:book/author book)]
     [:td
