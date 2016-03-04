@@ -6,9 +6,10 @@
 (enable-console-print!)
 
 (def app-state
-  (atom {:page    :shelf
-         :book-id nil
-         :books   []}))
+  (atom
+   {:page    :shelf
+    :book-id nil
+    :books   []}))
 
 (def target (.getElementById js/document "app"))
 
