@@ -81,18 +81,20 @@
     (generate-response {:status :ok})))
 
 (defn get-tag [tag results]
-  (filter #(= (:tag %) tag) results))
+  (->> results
+       (filter #(= (:tag %) tag))
+       first
+       :content))
 
 (defn extract-books [parsed]
   (->> parsed
        first :content second :content
        (get-tag :results)
-       first :content
        (map (fn [data]
-              (let [result (:content (first (get-tag :best_book (:content data))))]
-                {:id     (first (:content (first (get-tag :id result))))
-                 :title  (first (:content (first (get-tag :title result))))
-                 :author (first (:content (second (:content (first (get-tag :author result))))))})))))
+              (let [result (get-tag :best_book (:content data))]
+                {:id     (first (get-tag :id result))
+                 :title  (first (get-tag :title result))
+                 :author (first (:content (second (get-tag :author result))))})))))
 
 (defn search [search]
   (let [query   (URLEncoder/encode search "UTF-8")
