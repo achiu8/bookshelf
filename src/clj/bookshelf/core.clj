@@ -94,6 +94,12 @@
        first
        :content))
 
+(defn encode-query [query]
+  (URLEncoder/encode query "UTF-8"))
+
+(defn parse-xml [xml]
+  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes xml)))))
+
 (defn extract-books [parsed]
   (->> parsed
        first :content second :content
@@ -104,16 +110,19 @@
                  :title  (first (get-tag :title result))
                  :author (first (:content (second (get-tag :author result))))})))))
 
-(defn search [search]
-  (let [query   (URLEncoder/encode search "UTF-8")
-        results (api :search query)
-        parsed  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes results))))]
-    (generate-response (extract-books parsed))))
+(defn search [query]
+  (->> query
+       encode-query
+       (api :search)
+       parse-xml
+       extract-books
+       generate-response))
 
 (defn get-book [id]
-  (let [results (api :details id)
-        parsed  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes results))))]
-    (println parsed)))
+  (->> id
+       (api :book)
+       parse-xml
+       println))
 
 (defroutes routes
   (GET    "/"      [] (index))
