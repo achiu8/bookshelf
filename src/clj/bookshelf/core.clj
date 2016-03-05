@@ -51,14 +51,14 @@
        first
        :content))
 
-(defn get-tag [tag data]
+(defn get-tag [data tag]
   (->> data
        (filter #(= (:tag %) tag))
        first
        :content))
 
 (defn get-tag-path [path data]
-  (first (reduce #(get-tag %2 %1) data path)))
+  (first (reduce get-tag data path)))
 
 (defn book-details [data]
   {:id          (get-tag-path [:id] data)
@@ -71,21 +71,21 @@
    :year        (get-tag-path [:work :original_publication_year] data)})
 
 (defn book-summary [data]
-  (let [result (get-tag :best_book (:content data))]
+  (let [result (get-tag (:content data) :best_book)]
     {:id     (get-tag-path [:id] result)
      :title  (get-tag-path [:title] result)
      :author (get-tag-path [:author :name] result)}))
 
 (defn extract-book [parsed]
-  (->> parsed
-       (get-tag :book)
-       book-details))
+  (-> parsed
+      (get-tag :book)
+      book-details))
 
 (defn extract-books [parsed]
-  (->> parsed
-       second :content
-       (get-tag :results)
-       (map book-summary)))
+  (-> parsed
+      second :content
+      (get-tag :results)
+      (->> (map book-summary))))
 
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
