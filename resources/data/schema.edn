@@ -1,11 +1,11 @@
 [{:db/id #db/id[:db.part/db]
-  :db/ident :book/title
+  :db/ident :book/id
   :db/index true
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db.install/_attribute :db.part/db}
  {:db/id #db/id[:db.part/db]
-  :db/ident :book/id
+  :db/ident :book/title
   :db/index true
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
@@ -17,8 +17,28 @@
   :db/cardinality :db.cardinality/one
   :db.install/_attribute :db.part/db}
  {:db/id #db/id[:db.part/db]
-  :db/ident :book/genre
+  :db/ident :book/description
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :book/rating
+  :db/valueType :db.type/float
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :book/pages
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :book/isbn
   :db/index true
   :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :book/year
+  :db/valueType :db.type/long
   :db/cardinality :db.cardinality/one
   :db.install/_attribute :db.part/db}]

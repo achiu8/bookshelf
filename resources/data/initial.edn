@@ -1,26 +1,9 @@
 [{:db/id #db/id[:db.part/user]
-  :book/title "To Mock a Mockingbird: And Other Logic Puzzles"
-  :book/id "194769"
-  :book/author "Raymond M. Smullyan"
-  :book/genre "Logic"}
- {:db/id #db/id[:db.part/user]
-  :book/title "The Housekeeper and the Professor"
-  :book/id "3181564"
-  :book/author "Yoko Ogawa"
-  :book/genre "Fiction"}
- {:db/id #db/id[:db.part/user]
-  :book/title "Gravity's Rainbow"
   :book/id "415"
+  :book/title "Gravity's Rainbow"
   :book/author "Thomas Pynchon"
-  :book/genre "Fiction"}
- {:db/id #db/id[:db.part/user]
-  :book/title "Chaos: Making a New Science"
-  :book/id "64582"
-  :book/author "James Gleick"
-  :book/genre "Physics"}
- {:db/id #db/id[:db.part/user]
-  :book/title "Flash Boys: A Wall Street Revolt"
-  :book/id "24724602"
-  :book/author "Michael Lewis"
-  :book/genre "History"}
- ]
+  :book/description "Stuff"
+  :book/rating 4.03
+  :book/pages 776
+  :book/isbn "9780143039945"
+  :book/year 1973}]
