@@ -53,15 +53,28 @@
 (defn parse-xml [xml]
   (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes xml)))))
 
+(defn book-details [data]
+  {:id          (first (get-tag :id data))
+   :title       (first (get-tag :title data))
+   :description (first (get-tag :description data))})
+
+(defn book-summary [data]
+  (let [result (get-tag :best_book (:content data))]
+    {:id     (first (get-tag :id result))
+     :title  (first (get-tag :title result))
+     :author (first (:content (second (get-tag :author result))))}))
+
+(defn extract-book [parsed]
+  (->> parsed
+       first :content
+       (get-tag :book)
+       book-details))
+
 (defn extract-books [parsed]
   (->> parsed
        first :content second :content
        (get-tag :results)
-       (map (fn [data]
-              (let [result (get-tag :best_book (:content data))]
-                {:id     (first (get-tag :id result))
-                 :title  (first (get-tag :title result))
-                 :author (first (:content (second (get-tag :author result))))})))))
+       (map book-summary)))
 
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
@@ -122,7 +135,8 @@
   (->> id
        (api :book)
        parse-xml
-       println))
+       extract-book
+       generate-response))
 
 (defroutes routes
   (GET    "/"      [] (index))
