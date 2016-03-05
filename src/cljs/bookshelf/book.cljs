@@ -6,29 +6,22 @@
 (defn book-details [book]
   (html
    [:div
-    [:p (:id book)]
-    [:p (:title book)]
-    [:p (:author book)]
-    [:p (:description book)]
-    [:p (:rating book)]
-    [:p (:pages book)]
-    [:p (:isbn book)]
-    [:p (:year book)]]))
+    [:p (:book/id book)]
+    [:p (:book/author book)]
+    [:p (:book/description book)]
+    [:p (:book/rating book)]
+    [:p (:book/pages book)]
+    [:p (:book/isbn book)]
+    [:p (:book/year book)]]))
 
 
 (defn book [{:keys [book-id books]} owner]
   (let [book (some #(when (= book-id (:book/id %)) %) books)]
+    (println book)
     (reify
-      om/IInitState
-      (init-state [_] {:details nil})
-      om/IWillMount
-      (will-mount [_]
-        (xhr/xhr {:method      :get
-                  :url         (str "books/" book-id)
-                  :on-complete #(om/set-state! owner :details %)}))
-      om/IRenderState
-      (render-state [_ {:keys [details]}]
+      om/IRender
+      (render [_]
         (html
          [:div#book
-          [:h2 (:title details)]
-          (book-details details)])))))
+          [:h2 (:book/title book)]
+          (book-details book)])))))
