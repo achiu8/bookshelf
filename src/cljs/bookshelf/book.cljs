@@ -6,8 +6,14 @@
 (defn book-details [book]
   (html
    [:div
-    [:h4 (:id book)]
-    [:p (:description book)]]))
+    [:p (:id book)]
+    [:p (:title book)]
+    [:p (:author book)]
+    [:p (:description book)]
+    [:p (:rating book)]
+    [:p (:pages book)]
+    [:p (:isbn book)]
+    [:p (:year book)]]))
 
 
 (defn book [{:keys [book-id books]} owner]

@@ -41,12 +41,6 @@
                  :edn-body (read-inputstream-edn body))
                request))))
 
-(defn get-tag [tag results]
-  (->> results
-       (filter #(= (:tag %) tag))
-       first
-       :content))
-
 (defn encode-query [query]
   (URLEncoder/encode query "UTF-8"))
 
@@ -57,10 +51,24 @@
        first
        :content))
 
+(defn get-tag [tag results]
+  (->> results
+       (filter #(= (:tag %) tag))
+       first
+       :content))
+
+(defn book-data [data tag]
+  (first (get-tag tag data)))
+
 (defn book-details [data]
-  {:id          (first (get-tag :id data))
-   :title       (first (get-tag :title data))
-   :description (first (get-tag :description data))})
+  {:id          (book-data data :id)
+   :title       (book-data data :title)
+   :author      (first (get-tag :name (get-tag :author (get-tag :authors data))))
+   :description (book-data data :description)
+   :rating      (book-data data :average_rating)
+   :pages       (book-data data :num_pages)
+   :isbn        (book-data data :isbn)
+   :year        (first (get-tag :original_publication_year (get-tag :work data)))})
 
 (defn book-summary [data]
   (let [result (get-tag :best_book (:content data))]
