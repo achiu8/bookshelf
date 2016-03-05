@@ -6,20 +6,18 @@
 (defn book-details [book]
   (html
    [:div
-    [:p (:book/id book)]
     [:p (:book/author book)]
-    [:p (:book/description book)]
     [:p (:book/rating book)]
-    [:p (:book/pages book)]
-    [:p (:book/isbn book)]
-    [:p (:book/year book)]]))
+    [:p (:book/year book)]
+    [:p (str (:book/pages book) " pages")]
+    [:div {:dangerouslySetInnerHTML {:__html (:book/description book)}}]]))
 
 
 (defn book [{:keys [book-id books]} owner]
-  (let [book (some #(when (= book-id (:book/id %)) %) books)]
-    (reify
-      om/IRender
-      (render [_]
+  (reify
+    om/IRender
+    (render [_]
+      (let [book (some #(when (= book-id (:book/id %)) %) books)]
         (html
          [:div#book
           [:h2 (:book/title book)]
