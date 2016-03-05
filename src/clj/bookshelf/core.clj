@@ -110,12 +110,20 @@
         parsed  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes results))))]
     (generate-response (extract-books parsed))))
 
+(defn get-book [id]
+  (let [results (api :details id)
+        parsed  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes results))))]
+    (println parsed)))
+
 (defroutes routes
   (GET    "/"      [] (index))
   (GET    "/books" [] (books))
   (GET    "/search/:search"
           {params :params}
           (search (:search params)))
+  (GET    "/book/:id"
+          {params :params}
+          (get-book (:id params)))
   (POST   "/books"
           {edn-body :edn-body}
           (create-book edn-body))
