@@ -3,7 +3,7 @@
   :book/title "Gravity's Rainbow"
   :book/author "Thomas Pynchon"
   :book/description "Stuff"
-  :book/rating 4.03
-  :book/pages 776
+  :book/rating "4.03"
+  :book/pages "776"
   :book/isbn "9780143039945"
-  :book/year 1973}]
+  :book/year "1973"}]
