@@ -17,8 +17,8 @@
 
 (defn goodreads-api [endpoint query]
   (endpoint
-   {:search  (str "/search/index.xml?q=" query "&")
-    :details (str "/book/show/" query ".xml?")}))
+   {:search (str "/search/index.xml?q=" query "&")
+    :book   (str "/book/show/" query ".xml?")}))
 
 (defn api [endpoint query]
   (slurp (str base (goodreads-api endpoint query) "key=" key)))
@@ -130,16 +130,16 @@
   (GET    "/search/:search"
           {params :params}
           (search (:search params)))
-  (GET    "/book/:id"
+  (GET    "/books/:id"
           {params :params}
           (get-book (:id params)))
   (POST   "/books"
           {edn-body :edn-body}
           (create-book edn-body))
-  (PUT    "/book/:id/update"
+  (PUT    "/books/:id/update"
           {params :params edn-body :edn-body}
           (update-book (:id params) edn-body))
-  (DELETE "/book/:id/delete"
+  (DELETE "/books/:id/delete"
           {params :params}
           (delete-book (:id params)))
   (route/files "/" {:root "resources/public"}))

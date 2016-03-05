@@ -7,13 +7,13 @@
 
 (defn edit-book [id title]
   (xhr/xhr {:method :put
-            :url    (str "book/" id "/update")
+            :url    (str "books/" id "/update")
             :data   {:book/title title}}))
 
 (defn delete-book [id books]
   (om/transact! books [] #(vec (remove (fn [book] (= id (:book/id book))) %)))
   (xhr/xhr {:method :delete
-            :url    (str "book/" id "/delete")}))
+            :url    (str "books/" id "/delete")}))
 
 (defn book [book books]
   (html

@@ -15,7 +15,7 @@
       om/IWillMount
       (will-mount [_]
         (xhr/xhr {:method      :get
-                  :url         (str "book/" book-id)
+                  :url         (str "books/" book-id)
                   :on-complete #(js/console.log %)}))
       om/IRender
       (render [_]
