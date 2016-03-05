@@ -51,30 +51,30 @@
        first
        :content))
 
-(defn get-tag [tag results]
-  (->> results
+(defn get-tag [tag data]
+  (->> data
        (filter #(= (:tag %) tag))
        first
        :content))
 
-(defn book-data [data tag]
-  (first (get-tag tag data)))
+(defn get-tag-path [path data]
+  (first (reduce #(get-tag %2 %1) data path)))
 
 (defn book-details [data]
-  {:id          (book-data data :id)
-   :title       (book-data data :title)
-   :author      (first (get-tag :name (get-tag :author (get-tag :authors data))))
-   :description (book-data data :description)
-   :rating      (book-data data :average_rating)
-   :pages       (book-data data :num_pages)
-   :isbn        (book-data data :isbn)
-   :year        (first (get-tag :original_publication_year (get-tag :work data)))})
+  {:id          (get-tag-path [:id] data)
+   :title       (get-tag-path [:title] data)
+   :author      (get-tag-path [:authors :author :name] data)
+   :description (get-tag-path [:description] data)
+   :rating      (get-tag-path [:average_rating] data)
+   :pages       (get-tag-path [:num_pages] data)
+   :isbn        (get-tag-path [:isbn13] data)
+   :year        (get-tag-path [:work :original_publication_year] data)})
 
 (defn book-summary [data]
   (let [result (get-tag :best_book (:content data))]
-    {:id     (first (get-tag :id result))
-     :title  (first (get-tag :title result))
-     :author (first (:content (second (get-tag :author result))))}))
+    {:id     (get-tag-path [:id] result)
+     :title  (get-tag-path [:title] result)
+     :author (get-tag-path [:author :name] result)}))
 
 (defn extract-book [parsed]
   (->> parsed
