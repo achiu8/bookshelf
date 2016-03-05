@@ -61,14 +61,14 @@
   (first (reduce get-tag data path)))
 
 (defn book-details [data]
-  (let [paths {:id          [:id]
-               :title       [:title]
-               :author      [:authors :author :name]
-               :description [:description]
-               :rating      [:average_rating]
-               :pages       [:num_pages]
-               :isbn        [:isbn13]
-               :year        [:work :original_publication_year]}
+  (let [paths {:book/id          [:id]
+               :book/title       [:title]
+               :book/author      [:authors :author :name]
+               :book/description [:description]
+               :book/rating      [:average_rating]
+               :book/pages       [:num_pages]
+               :book/isbn        [:isbn13]
+               :book/year        [:work :original_publication_year]}
         fields (keys paths)]
     (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) paths fields)))
 
