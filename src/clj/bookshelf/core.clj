@@ -51,7 +51,11 @@
   (URLEncoder/encode query "UTF-8"))
 
 (defn parse-xml [xml]
-  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes xml)))))
+  (->> (java.io.ByteArrayInputStream. (.getBytes xml))
+       xml/parse
+       zip/xml-zip
+       first
+       :content))
 
 (defn book-details [data]
   {:id          (first (get-tag :id data))
@@ -66,13 +70,12 @@
 
 (defn extract-book [parsed]
   (->> parsed
-       first :content
        (get-tag :book)
        book-details))
 
 (defn extract-books [parsed]
   (->> parsed
-       first :content second :content
+       second :content
        (get-tag :results)
        (map book-summary)))
 
