@@ -102,15 +102,17 @@
                        db)))]
     (generate-response books)))
 
+(defn get-book [id]
+  (->> id
+       (api :book)
+       parse-xml
+       extract-book))
+
 (defn create-book [params]
-  (let [id     (:book/id params)
-        title  (:book/title params)
-        author (:book/author params)]
-    (d/transact conn [{:db/id       #db/id[:db.part/user]
-                       :book/id     id
-                       :book/title  title
-                       :book/author author}])
-    (generate-response {:status :ok})))
+  (let [book-details (get-book (:book/id params))
+        transaction  (assoc book-details :db/id #db/id[:db.part/user])]
+    (d/transact conn [transaction])
+    (generate-response book-details)))
 
 (defn update-book [id params]
   (let [db    (d/db conn)
@@ -142,13 +144,6 @@
        (api :search)
        parse-xml
        extract-books
-       generate-response))
-
-(defn get-book [id]
-  (->> id
-       (api :book)
-       parse-xml
-       extract-book
        generate-response))
 
 (defroutes routes

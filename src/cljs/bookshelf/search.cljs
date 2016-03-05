@@ -20,11 +20,11 @@
 
 (defn select-result [{:keys [id title author]} app owner]
   (let [selected {:book/id id :book/title title :book/author author}]
-    (om/transact! (:books app) [] #(conj % selected))
     (om/set-state! owner :results [])
-    (xhr/xhr {:method :post
-              :url    "books"
-              :data   selected})))
+    (xhr/xhr {:method      :post
+              :url         "books"
+              :data        selected
+              :on-complete (fn [res] (om/transact! (:books app) [] #(conj % res)))})))
 
 (defn search-result [result owner {:keys [app parent]}]
   (reify

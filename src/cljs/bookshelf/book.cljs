@@ -17,7 +17,6 @@
 
 (defn book [{:keys [book-id books]} owner]
   (let [book (some #(when (= book-id (:book/id %)) %) books)]
-    (println book)
     (reify
       om/IRender
       (render [_]
