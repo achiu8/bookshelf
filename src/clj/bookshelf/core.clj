@@ -16,9 +16,9 @@
 (def key "mg5D9xctXLfojpfmQuBuQ")
 
 (defn goodreads-api [endpoint query]
-  (endpoint
-   {:search (str "/search/index.xml?q=" query "&")
-    :book   (str "/book/show/" query ".xml?")}))
+  (condp = endpoint
+    :search (str "/search/index.xml?q=" query "&")
+    :book   (str "/book/show/" query ".xml?")))
 
 (defn api [endpoint query]
   (slurp (str base (goodreads-api endpoint query) "key=" key)))
