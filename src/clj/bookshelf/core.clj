@@ -41,6 +41,28 @@
                  :edn-body (read-inputstream-edn body))
                request))))
 
+(defn get-tag [tag results]
+  (->> results
+       (filter #(= (:tag %) tag))
+       first
+       :content))
+
+(defn encode-query [query]
+  (URLEncoder/encode query "UTF-8"))
+
+(defn parse-xml [xml]
+  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes xml)))))
+
+(defn extract-books [parsed]
+  (->> parsed
+       first :content second :content
+       (get-tag :results)
+       (map (fn [data]
+              (let [result (get-tag :best_book (:content data))]
+                {:id     (first (get-tag :id result))
+                 :title  (first (get-tag :title result))
+                 :author (first (:content (second (get-tag :author result))))})))))
+
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
 
@@ -87,28 +109,6 @@
     (d/transact conn [{:db/id     #db/id[:db.part/user]
                        :db/excise eid}])
     (generate-response {:status :ok})))
-
-(defn get-tag [tag results]
-  (->> results
-       (filter #(= (:tag %) tag))
-       first
-       :content))
-
-(defn encode-query [query]
-  (URLEncoder/encode query "UTF-8"))
-
-(defn parse-xml [xml]
-  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes xml)))))
-
-(defn extract-books [parsed]
-  (->> parsed
-       first :content second :content
-       (get-tag :results)
-       (map (fn [data]
-              (let [result (get-tag :best_book (:content data))]
-                {:id     (first (get-tag :id result))
-                 :title  (first (get-tag :title result))
-                 :author (first (:content (second (get-tag :author result))))})))))
 
 (defn search [query]
   (->> query
