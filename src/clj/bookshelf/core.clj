@@ -12,8 +12,16 @@
 
 (def uri "datomic:free://localhost:4334/bookshelf")
 (def conn (d/connect uri))
-(def api "https://www.goodreads.com/search/index.xml")
+(def base "https://www.goodreads.com")
 (def key "mg5D9xctXLfojpfmQuBuQ")
+
+(defn goodreads-api [endpoint query]
+  (endpoint
+   {:search  (str "/search/index.xml?q=" query "&")
+    :details (str "/book/show/" query ".xml?")}))
+
+(defn api [endpoint query]
+  (slurp (str base (goodreads-api endpoint query) "key=" key)))
 
 (defn generate-response [data & [status]]
   {:status  (or status 200)
@@ -98,7 +106,7 @@
 
 (defn search [search]
   (let [query   (URLEncoder/encode search "UTF-8")
-        results (slurp (str api "?key=" key "&q=" query))
+        results (api :search query)
         parsed  (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes results))))]
     (generate-response (extract-books parsed))))
 
