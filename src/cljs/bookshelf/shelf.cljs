@@ -8,13 +8,13 @@
 
 (defn edit-book [book]
   (fn [key value]
-    (om/transact! book key (fn [_] value))
+    (om/update! book key value)
     (xhr/xhr {:method :put
               :url    (str "books/" (:book/id book) "/update")
               :data   {key value}})))
 
 (defn delete-book [id books]
-  (om/transact! books [] #(vec (remove (fn [book] (= id (:book/id book))) %)))
+  (om/transact! books #(vec (remove (fn [book] (= id (:book/id book))) %)))
   (xhr/xhr {:method :delete
             :url    (str "books/" id "/delete")}))
 
@@ -65,7 +65,7 @@
     (will-mount [_]
       (xhr/xhr {:method      :get
                 :url         "books"
-                :on-complete #(om/transact! app :books (fn [_] %))}))
+                :on-complete #(om/update! app :books %)}))
     om/IRender
     (render [_]
       (html

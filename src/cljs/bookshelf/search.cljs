@@ -24,7 +24,7 @@
     (xhr/xhr {:method      :post
               :url         "books"
               :data        selected
-              :on-complete (fn [res] (om/transact! (:books app) [] #(conj % res)))})))
+              :on-complete (fn [res] (om/transact! (:books app) #(conj % res)))})))
 
 (defn search-result [result owner {:keys [app parent]}]
   (reify
