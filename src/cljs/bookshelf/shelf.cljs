@@ -26,14 +26,23 @@
      [:button {:on-click #(delete-book (:book/id book) books)}
       "Delete"]]]))
 
-(defn books [books]
-  (html
-   [:table
-    [:tbody
-     [:tr
-      [:th "Title"]
-      [:th "Author"]]
-     (map #(book % books) books)]]))
+(defn books [books owner]
+  (reify
+    om/IInitState
+    (init-state [_] {:sort :book/title})
+    om/IRenderState
+    (render-state [_ {:keys [sort]}]
+      (html
+       [:table
+        [:tbody
+         [:tr
+          [:th.clickable
+           {:on-click #(om/set-state! owner :sort :book/title)}
+           "Title"]
+          [:th.clickable
+           {:on-click #(om/set-state! owner :sort :book/author)}
+           "Author"]]
+         (map #(book % books) (sort-by sort books))]]))))
 
 (defn shelf [app owner]
   (reify
@@ -47,5 +56,5 @@
       (html
        [:div#shelf
         [:h2 "Books"]
-        (books (:books app))
+        (om/build books (:books app))
         (om/build search/search app)]))))
