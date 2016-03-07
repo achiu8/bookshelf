@@ -14,7 +14,7 @@
               :data   {key value}})))
 
 (defn delete-book [id books]
-  (om/transact! books #(vec (remove (fn [book] (= id (:book/id book))) %)))
+  (om/update! books (vec (remove #(= id (:book/id %)) books)))
   (xhr/xhr {:method :delete
             :url    (str "books/" id "/delete")}))
 
