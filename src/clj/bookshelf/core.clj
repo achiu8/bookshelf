@@ -115,15 +115,14 @@
     (generate-response book-details)))
 
 (defn update-book [id params]
-  (let [db    (d/db conn)
-        title (:book/title params)
-        eid   (ffirst
-               (d/q '[:find ?book
-                      :in $ ?id
-                      :where 
-                      [?book :book/id ?id]]
-                    db id))]
-    (d/transact conn [[:db/add eid :book/title title]])
+  (let [db  (d/db conn)
+        eid (ffirst
+             (d/q '[:find ?book
+                    :in $ ?id
+                    :where
+                    [?book :book/id ?id]]
+                  db id))]
+    (d/transact conn [(vec (flatten (concat [:db/add eid] params)))])
     (generate-response {:status :ok})))
 
 (defn delete-book [id]
