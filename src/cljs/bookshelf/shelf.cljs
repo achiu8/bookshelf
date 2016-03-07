@@ -53,9 +53,9 @@
        [:table
         [:tbody
          [:tr
-          [:th.clickable {:on-click #(sort-books :book/title owner)} "Title"]
-          [:th.clickable {:on-click #(sort-books :book/author owner)} "Author"]
-          [:th.clickable "Status"]]
+          [:th.clickable.column {:on-click #(sort-books :book/title owner)} "Title"]
+          [:th.clickable.column {:on-click #(sort-books :book/author owner)} "Author"]
+          [:th.clickable.column "Status"]]
          (map #(book % books) (sort-order books))]]))))
 
 (defn shelf [app owner]
