@@ -8,7 +8,7 @@
     (when-not (om/get-state owner :throttled)
       (apply f args)
       (om/set-state! owner :throttled true)
-      (js/setTimeout #(om/set-state! owner :throttled false) 500))))
+      (js/setTimeout #(om/set-state! owner :throttled false) 250))))
 
 (defn submit-search [books owner]
   (let [search-term-input (om/get-node owner "search-term")

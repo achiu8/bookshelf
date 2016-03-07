@@ -26,23 +26,33 @@
      [:button {:on-click #(delete-book (:book/id book) books)}
       "Delete"]]]))
 
+(defn sort-books [new-field owner]
+  (let [old-field (om/get-state owner :sort-field)
+        old-order (om/get-state owner :sort-order)]
+    (om/set-state! owner :sort-field new-field)
+    (if (= new-field old-field)
+      (om/set-state! owner :sort-order (comp reverse old-order))
+      (om/set-state! owner :sort-order (partial sort-by new-field)))))
+
 (defn books [books owner]
   (reify
     om/IInitState
-    (init-state [_] {:sort :book/title})
+    (init-state [_]
+      {:sort-field :book/title
+       :sort-order (partial sort-by :book/title)})
     om/IRenderState
-    (render-state [_ {:keys [sort]}]
+    (render-state [_ {:keys [sort-field sort-order]}]
       (html
        [:table
         [:tbody
          [:tr
           [:th.clickable
-           {:on-click #(om/set-state! owner :sort :book/title)}
+           {:on-click #(sort-books :book/title owner)}
            "Title"]
           [:th.clickable
-           {:on-click #(om/set-state! owner :sort :book/author)}
+           {:on-click #(sort-books :book/author owner)}
            "Author"]]
-         (map #(book % books) (sort-by sort books))]]))))
+         (map #(book % books) (sort-order books))]]))))
 
 (defn shelf [app owner]
   (reify
