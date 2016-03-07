@@ -61,16 +61,18 @@
   (first (reduce get-tag data path)))
 
 (defn book-details [data]
-  (let [paths {:book/id          [:id]
-               :book/title       [:title]
-               :book/author      [:authors :author :name]
-               :book/description [:description]
-               :book/rating      [:average_rating]
-               :book/pages       [:num_pages]
-               :book/isbn        [:isbn13]
-               :book/year        [:work :original_publication_year]}
-        fields (keys paths)]
-    (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) paths fields)))
+  (let [paths    {:book/id          [:id]
+                  :book/title       [:title]
+                  :book/author      [:authors :author :name]
+                  :book/description [:description]
+                  :book/rating      [:average_rating]
+                  :book/pages       [:num_pages]
+                  :book/isbn        [:isbn13]
+                  :book/year        [:work :original_publication_year]}
+        fields   (keys paths)
+        details  (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) paths fields)
+        defaults {:book/status "Unread"}]
+    (merge details defaults)))
 
 (defn book-summary [data]
   (let [result (get-tag (:content data) :best_book)]
