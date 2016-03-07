@@ -6,10 +6,11 @@
             [bookshelf.search :as search]
             [bookshelf.selectable :as selectable]))
 
-(defn edit-book [id]
+(defn edit-book [book]
   (fn [key value]
+    (om/transact! book key (fn [_] value))
     (xhr/xhr {:method :put
-              :url    (str "books/" id "/update")
+              :url    (str "books/" (:book/id book) "/update")
               :data   {key value}})))
 
 (defn delete-book [id books]
@@ -28,7 +29,7 @@
      (om/build selectable/selectable
                book
                {:opts {:select-key :book/status
-                       :on-select  (edit-book (:book/id book))}})]
+                       :on-select  (edit-book book)}})]
     [:td
      [:button {:on-click #(delete-book (:book/id book) books)}
       "Delete"]]]))
@@ -55,7 +56,7 @@
          [:tr
           [:th.clickable.column {:on-click #(sort-books :book/title owner)} "Title"]
           [:th.clickable.column {:on-click #(sort-books :book/author owner)} "Author"]
-          [:th.clickable.column "Status"]]
+          [:th.clickable.column {:on-click #(sort-books :book/status owner)} "Status"]]
          (map #(book % books) (sort-order books))]]))))
 
 (defn shelf [app owner]
