@@ -24,6 +24,4 @@
            {:style     (assoc (display (not hovered)) :width "100%")
             :value     text
             :on-change #(handle-change % select-key on-select owner)}
-           [:option "Unread"]
-           [:option "Reading"]
-           [:option "Read"]]])))))
+           (for [option ["Unread" "Reading" "Read"]] [:option option])]])))))
