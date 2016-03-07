@@ -3,7 +3,8 @@
             [sablono.core :as html :refer-macros [html]]
             [bookshelf.xhr :as xhr]
             [bookshelf.routes :as routes]
-            [bookshelf.search :as search]))
+            [bookshelf.search :as search]
+            [bookshelf.selectable :as selectable]))
 
 (defn edit-book [id title]
   (xhr/xhr {:method :put
@@ -22,7 +23,10 @@
      [:a {:href (routes/book-path {:id (:book/id book)})}
       (:book/title book)]]
     [:td (:book/author book)]
-    [:td (:book/status book)]
+    [:td
+     (om/build selectable/selectable
+               book
+               {:opts {:select-key :book/status}})]
     [:td
      [:button {:on-click #(delete-book (:book/id book) books)}
       "Delete"]]]))
