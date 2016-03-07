@@ -33,9 +33,8 @@
     om/IRenderState
     (render-state [_ {:keys [hovered]}]
       (html
-       [:div
-        {:style {:cursor "pointer"
-                 :font-weight (when hovered "bold")}
+       [:div.clickable
+        {:style         {:font-weight (when hovered "bold")}
          :on-click      #(select-result result app parent)
          :on-mouse-over #(om/set-state! owner :hovered true)
          :on-mouse-out  #(om/set-state! owner :hovered false)}
