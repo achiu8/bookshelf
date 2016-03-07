@@ -22,6 +22,7 @@
      [:a {:href (routes/book-path {:id (:book/id book)})}
       (:book/title book)]]
     [:td (:book/author book)]
+    [:td (:book/status book)]
     [:td
      [:button {:on-click #(delete-book (:book/id book) books)}
       "Delete"]]]))
@@ -46,12 +47,9 @@
        [:table
         [:tbody
          [:tr
-          [:th.clickable
-           {:on-click #(sort-books :book/title owner)}
-           "Title"]
-          [:th.clickable
-           {:on-click #(sort-books :book/author owner)}
-           "Author"]]
+          [:th.clickable {:on-click #(sort-books :book/title owner)} "Title"]
+          [:th.clickable {:on-click #(sort-books :book/author owner)} "Author"]
+          [:th.clickable "Status"]]
          (map #(book % books) (sort-order books))]]))))
 
 (defn shelf [app owner]
