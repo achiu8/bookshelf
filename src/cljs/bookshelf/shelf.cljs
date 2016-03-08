@@ -3,7 +3,6 @@
   (:require [cljs.core.async :as async :refer [<! put! chan]]
             [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
-            [bookshelf.xhr :as xhr]
             [bookshelf.routes :as routes]
             [bookshelf.actions :as actions]
             [bookshelf.search :as search]
