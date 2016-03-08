@@ -5,7 +5,7 @@
 
 (enable-console-print!)
 
-(def app-state
+(defonce app-state
   (atom
    {:page    :shelf
     :book-id nil
