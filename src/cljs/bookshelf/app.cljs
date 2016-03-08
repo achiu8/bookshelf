@@ -5,9 +5,9 @@
             [bookshelf.book :as book]))
 
 (defn pages [{:keys [page]}]
-  (page
-   {:shelf shelf/shelf
-    :book  book/book}))
+  (condp = page
+    :shelf shelf/shelf
+    :book  book/book))
 
 (defn app [app owner]
   (reify
