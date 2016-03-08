@@ -70,11 +70,6 @@
 
 (defn shelf [app owner]
   (reify
-    om/IWillMount
-    (will-mount [_]
-      (xhr/xhr {:method      :get
-                :url         "books"
-                :on-complete #(om/update! app :books %)}))
     om/IRender
     (render [_]
       (html
