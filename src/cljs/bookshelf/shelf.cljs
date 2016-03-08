@@ -1,5 +1,7 @@
 (ns bookshelf.shelf
-  (:require [om.core :as om :include-macros true]
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [cljs.core.async :as async :refer [<! put! chan]]
+            [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
             [bookshelf.xhr :as xhr]
             [bookshelf.routes :as routes]
@@ -14,11 +16,11 @@
               :data   {key value}})))
 
 (defn delete-book [id books]
-  (om/update! books (vec (remove #(= id (:book/id %)) books)))
+  (om/update! books (vec (remove #(= id (:book/id %)) @books)))
   (xhr/xhr {:method :delete
             :url    (str "books/" id "/delete")}))
 
-(defn book [book books]
+(defn book [book delete-ch]
   (html
    [:tr
     [:td
@@ -31,7 +33,7 @@
                {:opts {:select-key :book/status
                        :on-select  (edit-book book)}})]
     [:td
-     [:button {:on-click #(delete-book (:book/id book) books)}
+     [:button {:on-click #(put! delete-ch (:book/id book))}
       "Delete"]]]))
 
 (defn sort-books [new-field owner]
@@ -47,9 +49,16 @@
     om/IInitState
     (init-state [_]
       {:sort-field :book/title
-       :sort-order (partial sort-by :book/title)})
+       :sort-order (partial sort-by :book/title)
+       :delete-ch  (chan)})
+    om/IWillMount
+    (will-mount [_]
+      (let [delete-ch (om/get-state owner :delete-ch)]
+        (go (while true
+              (let [book-id (<! delete-ch)]
+                (delete-book book-id books))))))
     om/IRenderState
-    (render-state [_ {:keys [sort-field sort-order]}]
+    (render-state [_ {:keys [sort-field sort-order delete-ch]}]
       (html
        [:table
         [:tbody
@@ -57,7 +66,7 @@
           [:th.clickable.column {:on-click #(sort-books :book/title owner)} "Title"]
           [:th.clickable.column {:on-click #(sort-books :book/author owner)} "Author"]
           [:th.clickable.column {:on-click #(sort-books :book/status owner)} "Status"]]
-         (map #(book % books) (sort-order books))]]))))
+         (map #(book % delete-ch) (sort-order books))]]))))
 
 (defn shelf [app owner]
   (reify
