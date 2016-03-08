@@ -5,9 +5,6 @@
             [bookshelf.actions :as actions]
             [bookshelf.selectable :as selectable]))
 
-(def selectable-styles
-  {:display "inline-block"})
-
 (defn book-details [book]
   (html
    [:div
@@ -17,7 +14,7 @@
                       book
                       {:opts {:select-key :book/status
                               :on-select  (actions/edit-book book)
-                              :styles     selectable-styles}})]]
+                              :styles     {:display "inline-block"}}})]]
     [:p (:book/author book)]
     [:p (:book/rating book)]
     [:p (:book/year book)]
