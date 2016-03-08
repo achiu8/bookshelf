@@ -3,30 +3,8 @@
   (:require [cljs.core.async :as async :refer [<! put! chan]]
             [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
-            [bookshelf.xhr :as xhr]))
-
-(defn throttle [f owner]
-  (fn [& args]
-    (when-not (om/get-state owner :throttled)
-      (apply f args)
-      (om/set-state! owner :throttled true)
-      (js/setTimeout #(om/set-state! owner :throttled false) 250))))
-
-(defn submit-search [owner]
-  (let [search-term-input (om/get-node owner "search-term")
-        search-term       (.-value search-term-input)]
-    (when-not (empty? search-term)
-      (xhr/xhr {:method      :get
-                :url         (str "search/" search-term)
-                :on-complete #(om/set-state! owner :results %)}))))
-
-(defn select-result [{:keys [id title author]} app owner]
-  (let [selected {:book/id id :book/title title :book/author author}]
-    (om/set-state! owner :results [])
-    (xhr/xhr {:method      :post
-              :url         "books"
-              :data        selected
-              :on-complete (fn [res] (om/transact! (:books app) #(conj % res)))})))
+            [bookshelf.actions :as actions]
+            [bookshelf.utils :as utils]))
 
 (defn search-result [result owner {:keys [select-ch]}]
   (reify
@@ -61,12 +39,12 @@
       (let [select-ch (om/get-state owner :select-ch)]
         (go (while true
               (let [result (<! select-ch)]
-                (select-result result app owner))))))
+                (actions/select-result result app owner))))))
     om/IRenderState
     (render-state [_ {:keys [results select-ch]}]
       (html
        [:div
         [:input
          {:ref       "search-term"
-          :on-key-up #((throttle submit-search owner) owner)}]
+          :on-key-up #((utils/throttle actions/submit-search owner) owner)}]
         (search-results results select-ch)]))))
