@@ -5,20 +5,9 @@
             [sablono.core :as html :refer-macros [html]]
             [bookshelf.xhr :as xhr]
             [bookshelf.routes :as routes]
+            [bookshelf.actions :as actions]
             [bookshelf.search :as search]
             [bookshelf.selectable :as selectable]))
-
-(defn edit-book [book]
-  (fn [key value]
-    (om/update! book key value)
-    (xhr/xhr {:method :put
-              :url    (str "books/" (:book/id book) "/update")
-              :data   {key value}})))
-
-(defn delete-book [id books]
-  (om/update! books (vec (remove #(= id (:book/id %)) @books)))
-  (xhr/xhr {:method :delete
-            :url    (str "books/" id "/delete")}))
 
 (defn book [book delete-ch]
   (html
@@ -31,7 +20,7 @@
      (om/build selectable/selectable
                book
                {:opts {:select-key :book/status
-                       :on-select  (edit-book book)}})]
+                       :on-select  (actions/edit-book book)}})]
     [:td
      [:button {:on-click #(put! delete-ch (:book/id book))}
       "Delete"]]]))
@@ -56,7 +45,7 @@
       (let [delete-ch (om/get-state owner :delete-ch)]
         (go (while true
               (let [book-id (<! delete-ch)]
-                (delete-book book-id books))))))
+                (actions/delete-book book-id books))))))
     om/IRenderState
     (render-state [_ {:keys [sort-field sort-order delete-ch]}]
       (html
