@@ -1,11 +1,23 @@
 (ns bookshelf.book
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
-            [bookshelf.xhr :as xhr]))
+            [bookshelf.xhr :as xhr]
+            [bookshelf.actions :as actions]
+            [bookshelf.selectable :as selectable]))
+
+(def selectable-styles
+  {:display "inline-block"})
 
 (defn book-details [book]
   (html
    [:div
+    [:div
+     [:span "Status: "]
+     [:span (om/build selectable/selectable
+                      book
+                      {:opts {:select-key :book/status
+                              :on-select  (actions/edit-book book)
+                              :styles     selectable-styles}})]]
     [:p (:book/author book)]
     [:p (:book/rating book)]
     [:p (:book/year book)]

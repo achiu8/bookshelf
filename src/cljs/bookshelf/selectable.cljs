@@ -8,7 +8,7 @@
 (defn display [hovered]
   (when hovered {:display "none"}))
 
-(defn selectable [data owner {:keys [select-key on-select] :as opts}]
+(defn selectable [data owner {:keys [select-key on-select styles] :as opts}]
   (reify
     om/IInitState
     (init-state [_] {:hovered false})
@@ -17,7 +17,8 @@
       (let [text (get data select-key)]
         (html
          [:div
-          {:on-mouse-over #(om/set-state! owner :hovered true)
+          {:style         styles
+           :on-mouse-over #(om/set-state! owner :hovered true)
            :on-mouse-out  #(om/set-state! owner :hovered false)}
           [:span {:style (display hovered)} text]
           [:select
