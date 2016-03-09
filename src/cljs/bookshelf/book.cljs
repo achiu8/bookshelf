@@ -3,7 +3,13 @@
             [sablono.core :as html :refer-macros [html]]
             [bookshelf.xhr :as xhr]
             [bookshelf.actions :as actions]
-            [bookshelf.selectable :as selectable]))
+            [bookshelf.selectable :as selectable]
+            [bookshelf.similar :as similar]))
+
+(defn get-similar [id owner]
+  (xhr/xhr {:method      :get
+            :url         (str "books/" id "/similar")
+            :on-complete #(om/set-state! owner :similar %)}))
 
 (defn book-details [book]
   (html
@@ -24,10 +30,16 @@
 
 (defn book [{:keys [book-id books]} owner]
   (reify
-    om/IRender
-    (render [_]
+    om/IInitState
+    (init-state [_] {:similar []})
+    om/IWillMount
+    (will-mount [_]
+      (get-similar book-id owner))
+    om/IRenderState
+    (render-state [_ {:keys [similar]}]
       (let [book (some #(when (= book-id (:book/id %)) %) books)]
         (html
          [:div#book
           [:h2 (:book/title book)]
-          (book-details book)])))))
+          (book-details book)
+          (om/build similar/similar similar)])))))
