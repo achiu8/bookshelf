@@ -1,7 +1,5 @@
 (ns bookshelf.similar
-  (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as async :refer [<! put! chan]]
-            [om.core :as om :include-macros true]
+  (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]))
 
 (defn to-display [expanded similar]
@@ -26,4 +24,4 @@
         [:span.clickable
          {:style {:display (when expanded "none")}
           :on-click #(om/set-state! owner :expanded true)}
-         "More..."]]))))
+         "..."]]))))
