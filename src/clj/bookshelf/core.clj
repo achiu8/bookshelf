@@ -81,7 +81,7 @@
         fields     {:book/id     [:id]
                     :book/title  [:title_without_series]
                     :book/author [:authors :author :name]}]
-    (take 10 (map #(get-fields (:content %) fields) books-data))))
+    (map #(get-fields (:content %) fields) books-data)))
 
 (defn book-summary [data]
   (let [result (get-tag (:content data) :best_book)]
