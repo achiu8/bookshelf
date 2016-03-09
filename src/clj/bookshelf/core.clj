@@ -5,9 +5,8 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.edn :as edn]
-            [clojure.xml :as xml]
-            [clojure.zip :as zip]
-            [datomic.api :as d])
+            [datomic.api :as d]
+            [bookshelf.xml :as xml])
   (:import [java.net URLEncoder]))
 
 (def uri "datomic:free://localhost:4334/bookshelf")
@@ -44,25 +43,6 @@
 (defn encode-query [query]
   (URLEncoder/encode query "UTF-8"))
 
-(defn parse-xml [xml]
-  (->> (java.io.ByteArrayInputStream. (.getBytes xml))
-       xml/parse
-       zip/xml-zip
-       first
-       :content))
-
-(defn get-tag [data tag]
-  (->> data
-       (filter #(= (:tag %) tag))
-       first
-       :content))
-
-(defn get-tag-path [path data]
-  (first (reduce get-tag data path)))
-
-(defn get-fields [data fields]
-  (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) fields (keys fields)))
-
 (defn book-details [data]
   (let [fields   {:book/id          [:id]
                   :book/title       [:title]
@@ -72,33 +52,22 @@
                   :book/pages       [:num_pages]
                   :book/isbn        [:isbn13]
                   :book/year        [:work :original_publication_year]}
-        details  (get-fields data fields)
+        details  (xml/get-fields data fields)
         defaults {:book/status "Unread"}]
     (merge details defaults)))
 
 (defn similar-books [data]
-  (let [books-data (get-tag data :similar_books)
+  (let [books-data (xml/get-tag data :similar_books)
         fields     {:book/id     [:id]
                     :book/title  [:title_without_series]
                     :book/author [:authors :author :name]}]
-    (map #(get-fields (:content %) fields) books-data)))
+    (map #(xml/get-fields (:content %) fields) books-data)))
 
 (defn book-summary [data]
-  (let [result (get-tag (:content data) :best_book)]
-    {:id     (get-tag-path [:id] result)
-     :title  (get-tag-path [:title] result)
-     :author (get-tag-path [:author :name] result)}))
-
-(defn extract-book [extraction-fn parsed]
-  (-> parsed
-      (get-tag :book)
-      extraction-fn))
-
-(defn extract-books [parsed]
-  (-> parsed
-      second :content
-      (get-tag :results)
-      (->> (map book-summary))))
+  (let [result (xml/get-tag (:content data) :best_book)]
+    {:id     (xml/get-tag-path [:id] result)
+     :title  (xml/get-tag-path [:title] result)
+     :author (xml/get-tag-path [:author :name] result)}))
 
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
@@ -116,14 +85,14 @@
 (defn get-book [id extraction-fn]
   (->> id
        (api :book)
-       parse-xml
-       (extract-book extraction-fn)))
+       xml/parse-xml
+       (xml/extract-book extraction-fn)))
 
 (defn create-book [params]
-  (let [book-details (get-book (:book/id params) book-details)
-        transaction  (assoc book-details :db/id #db/id[:db.part/user])]
+  (let [details      (get-book (:book/id params) book-details)
+        transaction  (assoc details :db/id #db/id[:db.part/user])]
     (d/transact conn [transaction])
-    (generate-response book-details)))
+    (generate-response details)))
 
 (defn update-book [id params]
   (let [db  (d/db conn)
@@ -152,8 +121,8 @@
   (->> query
        encode-query
        (api :search)
-       parse-xml
-       extract-books
+       xml/parse-xml
+       (xml/extract-books book-summary)
        generate-response))
 
 (defn get-similar [id]
