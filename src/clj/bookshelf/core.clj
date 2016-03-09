@@ -78,9 +78,9 @@
 
 (defn similar-books [data]
   (let [books-data (get-tag data :similar_books)
-        fields     {:id     [:id]
-                    :title  [:title]
-                    :authro [:authors :author :name]}]
+        fields     {:book/id     [:id]
+                    :book/title  [:title_without_series]
+                    :book/author [:authors :author :name]}]
     (take 10 (map #(get-fields (:content %) fields) books-data))))
 
 (defn book-summary [data]
