@@ -60,8 +60,11 @@
 (defn get-tag-path [path data]
   (first (reduce get-tag data path)))
 
+(defn get-fields [data fields]
+  (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) fields (keys fields)))
+
 (defn book-details [data]
-  (let [paths    {:book/id          [:id]
+  (let [fields   {:book/id          [:id]
                   :book/title       [:title]
                   :book/author      [:authors :author :name]
                   :book/description [:description]
@@ -69,10 +72,16 @@
                   :book/pages       [:num_pages]
                   :book/isbn        [:isbn13]
                   :book/year        [:work :original_publication_year]}
-        fields   (keys paths)
-        details  (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) paths fields)
+        details  (get-fields data fields)
         defaults {:book/status "Unread"}]
     (merge details defaults)))
+
+(defn similar-books [data]
+  (let [books-data (get-tag data :similar_books)
+        fields     {:id     [:id]
+                    :title  [:title]
+                    :authro [:authors :author :name]}]
+    (take 10 (map #(get-fields (:content %) fields) books-data))))
 
 (defn book-summary [data]
   (let [result (get-tag (:content data) :best_book)]
@@ -80,10 +89,10 @@
      :title  (get-tag-path [:title] result)
      :author (get-tag-path [:author :name] result)}))
 
-(defn extract-book [parsed]
+(defn extract-book [extraction-fn parsed]
   (-> parsed
       (get-tag :book)
-      book-details))
+      extraction-fn))
 
 (defn extract-books [parsed]
   (-> parsed
@@ -104,14 +113,14 @@
                        db)))]
     (generate-response books)))
 
-(defn get-book [id]
+(defn get-book [id extraction-fn]
   (->> id
        (api :book)
        parse-xml
-       extract-book))
+       (extract-book extraction-fn)))
 
 (defn create-book [params]
-  (let [book-details (get-book (:book/id params))
+  (let [book-details (get-book (:book/id params) book-details)
         transaction  (assoc book-details :db/id #db/id[:db.part/user])]
     (d/transact conn [transaction])
     (generate-response book-details)))
@@ -147,6 +156,9 @@
        extract-books
        generate-response))
 
+(defn get-similar [id]
+  (generate-response (get-book id similar-books)))
+
 (defroutes routes
   (GET    "/"      [] (index))
   (GET    "/books" [] (books))
@@ -156,6 +168,9 @@
   (GET    "/books/:id"
           {params :params}
           (get-book (:id params)))
+  (GET    "/books/:id/similar"
+          {params :params}
+          (get-similar (:id params)))
   (POST   "/books"
           {edn-body :edn-body}
           (create-book edn-body))
