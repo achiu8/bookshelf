@@ -19,7 +19,10 @@
   (first (reduce get-tag data path)))
 
 (defn get-fields [data fields]
-  (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data)) fields (keys fields)))
+  (into {} (remove (comp nil? second)
+                   (reduce #(assoc %1 %2 (get-tag-path (%2 %1) data))
+                           fields
+                           (keys fields)))))
 
 (defn extract-book [extraction-fn parsed]
   (-> parsed
