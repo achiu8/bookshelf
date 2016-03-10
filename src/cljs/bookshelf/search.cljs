@@ -48,7 +48,9 @@
               (let [delay-ch (timeout 500)
                     [val ch] (alts! [select-ch input-ch delay-ch])]
                 (condp = ch
-                  select-ch (actions/select-result val app owner)
+                  select-ch (do
+                              (actions/select-result val app)
+                              (om/set-state! owner :results []))
                   input-ch  (om/set-state! owner :debounced true)
                   delay-ch  (when (om/get-state owner :debounced)
                               (actions/submit-search owner)

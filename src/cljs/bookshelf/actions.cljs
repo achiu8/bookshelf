@@ -14,9 +14,8 @@
   (xhr/xhr {:method :delete
             :url    (str "books/" id "/delete")}))
 
-(defn select-result [{:keys [id title author]} app owner]
+(defn select-result [{:keys [id title author]} app]
   (let [selected {:book/id id :book/title title :book/author author}]
-    (om/set-state! owner :results [])
     (xhr/xhr {:method      :post
               :url         "books"
               :data        selected
