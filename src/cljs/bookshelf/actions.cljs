@@ -19,7 +19,7 @@
     (xhr/xhr {:method      :post
               :url         "books"
               :data        selected
-              :on-complete (fn [res] (om/transact! (:books app) #(conj % res)))})))
+              :on-complete (fn [res] (swap! app update :books #(conj % res)))})))
 
 (defn submit-search [owner]
   (let [search-term-input (om/get-node owner "search-term")

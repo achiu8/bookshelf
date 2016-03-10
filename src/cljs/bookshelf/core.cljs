@@ -1,5 +1,8 @@
 (ns ^:figwheel-always bookshelf.core
-    (:require [om.core :as om :include-macros true]
+    (:require-macros [cljs.core.async.macros :refer [go]])
+    (:require [cljs.core.async :as async :refer [alts! chan]]
+              [om.core :as om :include-macros true]
+              [bookshelf.actions :as actions]
               [bookshelf.routes :as routes]
               [bookshelf.app :as app]))
 
@@ -7,14 +10,22 @@
 
 (defonce app-state
   (atom
-   {:page    :shelf
-    :book-id nil
-    :books   []}))
+   {:page      :shelf
+    :book-id   nil
+    :books     []
+    :select-ch (chan)}))
 
 (def target (.getElementById js/document "app"))
 
 (def history-container (.getElementById js/document "history"))
 
-(routes/define-routes! app-state history-container)
+(defn main [app target history-container]
+  (let [select-ch (:select-ch @app)]
+    (routes/define-routes! app-state history-container)
+    (om/root app/app app-state {:target target})
+    (go (while true
+          (let [[v ch] (alts! [select-ch])]
+            (condp = ch
+              select-ch (actions/select-result v app)))))))
 
-(om/root app/app app-state {:target target})
+(main app-state target history-container)

@@ -10,7 +10,11 @@
   ((utils/throttle actions/submit-search owner) owner)
   (put! (om/get-state owner :input-ch) (.. e -target -value)))
 
-(defn search-result [result owner {:keys [select-ch]}]
+(defn handle-select [_ result search select-ch]
+  (om/set-state! search :results [])
+  (put! select-ch result))
+
+(defn search-result [result owner {:keys [search select-ch]}]
   (reify
     om/IInitState
     (init-state [_] {:hovered false})
@@ -19,17 +23,18 @@
       (html
        [:div.clickable
         {:style         {:font-weight (when hovered "bold")}
-         :on-click      #(put! select-ch result)
+         :on-click      #(handle-select % result search select-ch)
          :on-mouse-over #(om/set-state! owner :hovered true)
          :on-mouse-out  #(om/set-state! owner :hovered false)}
         (:title result)]))))
 
-(defn search-results [results select-ch]
+(defn search-results [results search select-ch]
   (html
    [:div
     (om/build-all search-result
                   results
-                  {:opts {:select-ch select-ch}})]))
+                  {:opts {:search    search
+                          :select-ch select-ch}})]))
 
 (defn search [app owner]
   (reify
@@ -38,23 +43,18 @@
       {:results   []
        :throttled false
        :debounced false
-       :select-ch (chan)
        :input-ch  (chan)})
     om/IWillMount
     (will-mount [_]
-      (let [select-ch (om/get-state owner :select-ch)
-            input-ch  (om/get-state owner :input-ch)]
-        (go (while true
-              (let [delay-ch (timeout 500)
-                    [val ch] (alts! [select-ch input-ch delay-ch])]
-                (condp = ch
-                  select-ch (do
-                              (actions/select-result val app)
-                              (om/set-state! owner :results []))
-                  input-ch  (om/set-state! owner :debounced true)
-                  delay-ch  (when (om/get-state owner :debounced)
-                              (actions/submit-search owner)
-                              (om/set-state! owner :debounced false))))))))
+      (go (while true
+            (let [input-ch (om/get-state owner :input-ch)
+                  delay-ch (timeout 500)
+                  [val ch] (alts! [input-ch delay-ch])]
+              (condp = ch
+                input-ch (om/set-state! owner :debounced true)
+                delay-ch (when (om/get-state owner :debounced)
+                           (actions/submit-search owner)
+                           (om/set-state! owner :debounced false)))))))
     om/IRenderState
     (render-state [_ {:keys [results select-ch]}]
       (html
@@ -62,4 +62,4 @@
         [:input
          {:ref       "search-term"
           :on-key-up #(handle-keyup % owner)}]
-        (search-results results select-ch)]))))
+        (search-results results owner (:select-ch app))]))))
