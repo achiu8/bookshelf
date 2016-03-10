@@ -21,8 +21,8 @@
       (let [select-ch (om/get-shared owner :select-ch)]
         (html
          [:div
-          [:div.inline.similar-title (:book/title book)]
-          [:div.inline.similar-author (:book/author book)]
+          [:div.inline.similar.title (:book/title book)]
+          [:div.inline.similar.author (:book/author book)]
           [:button
            {:disabled added
             :on-click #(handle-add % book owner select-ch)}

@@ -10,12 +10,18 @@
   display: inline-block;
 }
 
-.similar-title {
-  width: 400px;
+.similar {
+  margin-right: 10px;
+  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
-.similar-author {
+.title {
+  width: 400px;
+}
+
+.author {
   width: 150px;
-  text-overflow: ellipsis;
 }
