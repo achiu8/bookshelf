@@ -64,10 +64,11 @@
     (map #(xml/get-fields (:content %) fields) books-data)))
 
 (defn book-summary [data]
-  (let [result (xml/get-tag (:content data) :best_book)]
-    {:id     (xml/get-tag-path [:id] result)
-     :title  (xml/get-tag-path [:title] result)
-     :author (xml/get-tag-path [:author :name] result)}))
+  (let [result (xml/get-tag (:content data) :best_book)
+        fields {:book/id     [:id]
+                :book/title  [:title]
+                :book/author [:author :name]}]
+    (xml/get-fields result fields)))
 
 (defn index []
   (file-response "public/html/index.html" {:root "resources"}))
