@@ -5,3 +5,17 @@
 .column {
   min-width: 100px;
 }
+
+.inline {
+  display: inline-block;
+}
+
+.similar-title {
+  width: 400px;
+  text-overflow: ellipsis;
+}
+
+.similar-author {
+  width: 150px;
+  text-overflow: ellipsis;
+}

@@ -9,7 +9,9 @@
 
 (defn similar-book [book]
   (html
-   [:div (str (:book/title book) " - " (:book/author book))]))
+   [:div
+    [:div.inline.similar-title (:book/title book)]
+    [:div.inline.similar-author (:book/author book)]]))
 
 (defn similar [similar owner]
   (reify

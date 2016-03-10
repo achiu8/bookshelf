@@ -8,6 +8,14 @@
             [bookshelf.search :as search]
             [bookshelf.selectable :as selectable]))
 
+(defn sort-books [new-field owner]
+  (let [old-field (om/get-state owner :sort-field)
+        old-order (om/get-state owner :sort-order)]
+    (om/set-state! owner :sort-field new-field)
+    (if (= new-field old-field)
+      (om/set-state! owner :sort-order (comp reverse old-order))
+      (om/set-state! owner :sort-order (partial sort-by new-field)))))
+
 (defn book [book delete-ch]
   (html
    [:tr
@@ -23,14 +31,6 @@
     [:td
      [:button {:on-click #(put! delete-ch (:book/id book))}
       "Delete"]]]))
-
-(defn sort-books [new-field owner]
-  (let [old-field (om/get-state owner :sort-field)
-        old-order (om/get-state owner :sort-order)]
-    (om/set-state! owner :sort-field new-field)
-    (if (= new-field old-field)
-      (om/set-state! owner :sort-order (comp reverse old-order))
-      (om/set-state! owner :sort-order (partial sort-by new-field)))))
 
 (defn books [books owner]
   (reify
