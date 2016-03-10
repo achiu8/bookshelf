@@ -14,12 +14,11 @@
   (xhr/xhr {:method :delete
             :url    (str "books/" id "/delete")}))
 
-(defn select-result [{:keys [id title author]} app]
-  (let [selected {:book/id id :book/title title :book/author author}]
-    (xhr/xhr {:method      :post
-              :url         "books"
-              :data        selected
-              :on-complete (fn [res] (swap! app update :books #(conj % res)))})))
+(defn select-result [selected app]
+  (xhr/xhr {:method      :post
+            :url         "books"
+            :data        selected
+            :on-complete (fn [res] (swap! app update :books #(conj % res)))}))
 
 (defn submit-search [owner]
   (let [search-term-input (om/get-node owner "search-term")

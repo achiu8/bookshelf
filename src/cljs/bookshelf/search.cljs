@@ -27,7 +27,7 @@
            :on-click      #(handle-select % result search select-ch)
            :on-mouse-over #(om/set-state! owner :hovered true)
            :on-mouse-out  #(om/set-state! owner :hovered false)}
-          (:title result)])))))
+          (:book/title result)])))))
 
 (defn search-results [results search]
   (html
