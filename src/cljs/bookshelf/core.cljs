@@ -22,7 +22,10 @@
 (defn main [app target history-container]
   (let [select-ch (:select-ch @app)]
     (routes/define-routes! app-state history-container)
-    (om/root app/app app-state {:target target})
+    (om/root app/app
+             app-state
+             {:target target
+              :shared {:select-ch select-ch}})
     (go (while true
           (let [[v ch] (alts! [select-ch])]
             (condp = ch

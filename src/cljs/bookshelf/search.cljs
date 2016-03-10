@@ -14,27 +14,25 @@
   (om/set-state! search :results [])
   (put! select-ch result))
 
-(defn search-result [result owner {:keys [search select-ch]}]
+(defn search-result [result owner {:keys [search]}]
   (reify
     om/IInitState
     (init-state [_] {:hovered false})
     om/IRenderState
     (render-state [_ {:keys [hovered]}]
-      (html
-       [:div.clickable
-        {:style         {:font-weight (when hovered "bold")}
-         :on-click      #(handle-select % result search select-ch)
-         :on-mouse-over #(om/set-state! owner :hovered true)
-         :on-mouse-out  #(om/set-state! owner :hovered false)}
-        (:title result)]))))
+      (let [select-ch (om/get-shared owner :select-ch)]
+        (html
+         [:div.clickable
+          {:style         {:font-weight (when hovered "bold")}
+           :on-click      #(handle-select % result search select-ch)
+           :on-mouse-over #(om/set-state! owner :hovered true)
+           :on-mouse-out  #(om/set-state! owner :hovered false)}
+          (:title result)])))))
 
-(defn search-results [results search select-ch]
+(defn search-results [results search]
   (html
    [:div
-    (om/build-all search-result
-                  results
-                  {:opts {:search    search
-                          :select-ch select-ch}})]))
+    (om/build-all search-result results {:opts {:search search}})]))
 
 (defn search [app owner]
   (reify
@@ -56,10 +54,10 @@
                            (actions/submit-search owner)
                            (om/set-state! owner :debounced false)))))))
     om/IRenderState
-    (render-state [_ {:keys [results select-ch]}]
+    (render-state [_ {:keys [results]}]
       (html
        [:div
         [:input
          {:ref       "search-term"
           :on-key-up #(handle-keyup % owner)}]
-        (search-results results owner (:select-ch app))]))))
+        (search-results results owner)]))))
