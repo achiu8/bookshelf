@@ -15,10 +15,13 @@
             :url    (str "books/" id "/delete")}))
 
 (defn select-result [selected app]
-  (xhr/xhr {:method      :post
-            :url         "books"
-            :data        selected
-            :on-complete (fn [res] (swap! app update :books #(conj % res)))}))
+  (let [selected-id  (:book/id selected)
+        existing-ids (map :book/id (:books @app))]
+    (when-not ((set existing-ids) selected-id)
+      (xhr/xhr {:method      :post
+                :url         "books"
+                :data        selected
+                :on-complete (fn [res] (swap! app update :books #(conj % res)))}))))
 
 (defn submit-search [owner]
   (let [search-term-input (om/get-node owner "search-term")

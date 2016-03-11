@@ -90,8 +90,8 @@
        (xml/extract-book extraction-fn)))
 
 (defn create-book [params]
-  (let [details      (get-book (:book/id params) book-details)
-        transaction  (assoc details :db/id #db/id[:db.part/user])]
+  (let [details     (get-book (:book/id params) book-details)
+        transaction (assoc details :db/id #db/id[:db.part/user])]
     (d/transact conn [transaction])
     (generate-response details)))
 
