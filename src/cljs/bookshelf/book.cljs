@@ -6,11 +6,6 @@
             [bookshelf.selectable :as selectable]
             [bookshelf.similar :as similar]))
 
-(defn get-similar [id owner]
-  (xhr/xhr {:method      :get
-            :url         (str "books/" id "/similar")
-            :on-complete #(om/set-state! owner :similar %)}))
-
 (defn book-details [book]
   (html
    [:div
@@ -34,7 +29,7 @@
     (init-state [_] {:similar []})
     om/IWillMount
     (will-mount [_]
-      (get-similar book-id owner))
+      (actions/get-similar book-id owner))
     om/IRenderState
     (render-state [_ {:keys [similar]}]
       (let [book (some #(when (= book-id (:book/id %)) %) books)]

@@ -2,6 +2,11 @@
   (:require [om.core :as om :include-macros true]
             [bookshelf.xhr :as xhr]))
 
+(defn get-similar [id book]
+  (xhr/xhr {:method      :get
+            :url         (str "books/" id "/similar")
+            :on-complete #(om/set-state! book :similar %)}))
+
 (defn edit-book [book]
   (fn [key value]
     (om/update! book key value)
