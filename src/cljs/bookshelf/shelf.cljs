@@ -20,7 +20,7 @@
   (html
    [:tr
     [:td
-     [:a {:href (routes/book-path {:id (:book/id book)})}
+     [:a.book-link {:href (routes/book-path {:id (:book/id book)})}
       (:book/title book)]]
     [:td (:book/author book)]
     [:td

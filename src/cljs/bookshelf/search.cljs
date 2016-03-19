@@ -65,7 +65,7 @@
     om/IRenderState
     (render-state [_ {:keys [results hovered]}]
       (html
-       [:div
+       [:div.search
         [:input
          {:ref         "search-term"
           :on-key-down #(handle-keydown % owner)}]
