@@ -12,10 +12,11 @@
 (defn select-down [hovered results]
   (min (inc hovered) (dec (count results))))
 
-(defn handle-select [_ i owner]
-  (let [result (nth (om/get-state owner :results) i)]
-    (om/set-state! owner :results [])
-    (put! (om/get-shared owner :select-ch) result)))
+(defn handle-select [_ hovered owner]
+  (when hovered
+    (let [result (nth (om/get-state owner :results) hovered)]
+      (om/set-state! owner :results [])
+      (put! (om/get-shared owner :select-ch) result))))
 
 (defn handle-keydown [e owner]
   (let [results  (om/get-state owner :results)
