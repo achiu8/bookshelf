@@ -30,6 +30,13 @@
           ((utils/throttle actions/submit-search owner) owner)
           (put! input-ch (.. e -target -value))))))
 
+(defn handle-results [results owner]
+  (om/set-state! owner
+                 :results
+                 (if (empty? (.-value (om/get-node owner "search-term")))
+                   []
+                   results)))
+
 (defn search-result [result i owner]
   (html
    [:div.clickable
@@ -48,22 +55,25 @@
   (reify
     om/IInitState
     (init-state [_]
-      {:results   []
-       :selected  0
-       :throttled false
-       :debounced false
-       :input-ch  (chan)})
+      {:results    []
+       :selected   0
+       :throttled  false
+       :debounced  false
+       :input-ch   (chan)
+       :results-ch (chan)})
     om/IWillMount
     (will-mount [_]
       (go (while true
-            (let [input-ch (om/get-state owner :input-ch)
-                  delay-ch (timeout 500)
-                  [_ ch] (alts! [input-ch delay-ch])]
+            (let [input-ch   (om/get-state owner :input-ch)
+                  results-ch (om/get-state owner :results-ch)
+                  delay-ch   (timeout 500)
+                  [val ch] (alts! [input-ch results-ch delay-ch])]
               (condp = ch
-                input-ch (om/set-state! owner :debounced true)
-                delay-ch (when (om/get-state owner :debounced)
-                           (actions/submit-search owner)
-                           (om/set-state! owner :debounced false)))))))
+                input-ch   (om/set-state! owner :debounced true)
+                results-ch (handle-results val owner)
+                delay-ch   (when (om/get-state owner :debounced)
+                             (actions/submit-search owner)
+                             (om/set-state! owner :debounced false)))))))
     om/IRenderState
     (render-state [_ {:keys [results selected]}]
       (html

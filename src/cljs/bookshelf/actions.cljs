@@ -1,5 +1,6 @@
 (ns bookshelf.actions
-  (:require [om.core :as om :include-macros true]
+  (:require [cljs.core.async :as async :refer [put!]]
+            [om.core :as om :include-macros true]
             [bookshelf.xhr :as xhr]))
 
 (defn get-similar [id book]
@@ -34,4 +35,4 @@
     (when-not (empty? search-term)
       (xhr/xhr {:method      :get
                 :url         (str "search/" search-term)
-                :on-complete #(om/set-state! owner :results %)}))))
+                :on-complete #(put! (om/get-state owner :results-ch) %)}))))
