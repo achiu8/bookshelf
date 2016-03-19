@@ -6,36 +6,36 @@
             [bookshelf.actions :as actions]
             [bookshelf.utils :as utils]))
 
-(defn select-up [hovered]
-  (max (dec hovered) 0))
+(defn select-up [selected]
+  (max (dec selected) 0))
 
-(defn select-down [hovered results]
-  (min (inc hovered) (dec (count results))))
+(defn select-down [selected results]
+  (min (inc selected) (dec (count results))))
 
-(defn handle-select [_ hovered owner]
-  (when hovered
-    (let [result (nth (om/get-state owner :results) hovered)]
+(defn handle-select [_ selected owner]
+  (when selected
+    (let [result (nth (om/get-state owner :results) selected)]
       (om/set-state! owner :results [])
       (put! (om/get-shared owner :select-ch) result))))
 
 (defn handle-keydown [e owner]
   (let [results  (om/get-state owner :results)
-        hovered  (om/get-state owner :hovered)
+        selected (om/get-state owner :selected)
         input-ch (om/get-state owner :input-ch)]
     (condp = (.-keyCode e)
-      38 (om/update-state! owner :hovered (fnil select-up 0))
-      40 (om/update-state! owner :hovered (fnil #(select-down % results) -1))
-      13 (handle-select nil hovered owner)
-      (do (om/set-state! owner :hovered nil)
+      38 (om/update-state! owner :selected (fnil select-up 0))
+      40 (om/update-state! owner :selected (fnil #(select-down % results) -1))
+      13 (handle-select nil selected owner)
+      (do (om/set-state! owner :selected nil)
           ((utils/throttle actions/submit-search owner) owner)
           (put! input-ch (.. e -target -value))))))
 
 (defn search-result [result i owner]
   (html
    [:div.clickable
-    {:style         {:background-color (when (= i (om/get-state owner :hovered)) "#f0f0f0")}
+    {:style         {:background-color (when (= i (om/get-state owner :selected)) "#f0f0f0")}
      :on-click      #(handle-select % i owner)
-     :on-mouse-over #(om/set-state! owner :hovered i)}
+     :on-mouse-over #(om/set-state! owner :selected i)}
     (:book/title result)]))
 
 (defn search-results [results owner]
@@ -48,7 +48,7 @@
     om/IInitState
     (init-state [_]
       {:results   []
-       :hovered   0
+       :selected  0
        :throttled false
        :debounced false
        :input-ch  (chan)})
@@ -64,7 +64,7 @@
                            (actions/submit-search owner)
                            (om/set-state! owner :debounced false)))))))
     om/IRenderState
-    (render-state [_ {:keys [results hovered]}]
+    (render-state [_ {:keys [results selected]}]
       (html
        [:div.search
         [:input
