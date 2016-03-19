@@ -36,7 +36,8 @@
     {:style         {:background-color (when (= i (om/get-state owner :selected)) "#f0f0f0")}
      :on-click      #(handle-select % i owner)
      :on-mouse-over #(om/set-state! owner :selected i)}
-    (:book/title result)]))
+    (utils/highlight (seq (.-value (om/get-node owner "search-term")))
+                     (seq (:book/title result)))]))
 
 (defn search-results [results owner]
   (html
