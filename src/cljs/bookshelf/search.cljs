@@ -6,9 +6,11 @@
             [bookshelf.actions :as actions]
             [bookshelf.utils :as utils]))
 
-(defn handle-keyup [e owner]
-  ((utils/throttle actions/submit-search owner) owner)
-  (put! (om/get-state owner :input-ch) (.. e -target -value)))
+(defn handle-keydown [e owner]
+  (if (#{38 40} (.-keyCode e))
+    (println "hi")
+    (do ((utils/throttle actions/submit-search owner) owner)
+        (put! (om/get-state owner :input-ch) (.. e -target -value)))))
 
 (defn handle-select [_ result search select-ch]
   (om/set-state! search :results [])
@@ -58,6 +60,6 @@
       (html
        [:div
         [:input
-         {:ref       "search-term"
-          :on-key-up #(handle-keyup % owner)}]
+         {:ref         "search-term"
+          :on-key-down #(handle-keydown % owner)}]
         (search-results results owner)]))))
