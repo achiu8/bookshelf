@@ -21,11 +21,12 @@
   (let [results  (om/get-state owner :results)
         hovered  (om/get-state owner :hovered)
         input-ch (om/get-state owner :input-ch)]
-    (condp =  (.-keyCode e)
+    (condp = (.-keyCode e)
       38 (om/update-state! owner :hovered (fnil select-up 0))
-      40 (om/update-state! owner :hovered (fnil #(select-down % results) 0))
+      40 (om/update-state! owner :hovered (fnil #(select-down % results) -1))
       13 (handle-select nil hovered owner)
-      (do ((utils/throttle actions/submit-search owner) owner)
+      (do (om/set-state! owner :hovered nil)
+          ((utils/throttle actions/submit-search owner) owner)
           (put! input-ch (.. e -target -value))))))
 
 (defn search-result [result i owner]
