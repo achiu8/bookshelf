@@ -23,7 +23,7 @@
       (let [select-ch (om/get-shared owner :select-ch)]
         (html
          [:div.clickable
-          {:style         {:font-weight (when hovered "bold")}
+          {:style         {:background-color (when hovered "#f0f0f0")}
            :on-click      #(handle-select % result search select-ch)
            :on-mouse-over #(om/set-state! owner :hovered true)
            :on-mouse-out  #(om/set-state! owner :hovered false)}
