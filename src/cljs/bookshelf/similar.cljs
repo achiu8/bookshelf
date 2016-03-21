@@ -3,6 +3,9 @@
             [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]))
 
+(defn link [id]
+  (str "https://www.goodreads.com/book/show/" id))
+
 (defn to-display [expanded similar]
   (if expanded
     similar
@@ -21,7 +24,8 @@
       (let [select-ch (om/get-shared owner :select-ch)]
         (html
          [:div
-          [:div.inline.similar.title (:book/title book)]
+          [:div.inline.similar.title
+           [:a.book-link {:href (link (:book/id book))} (:book/title book)]]
           [:div.inline.similar.author (:book/author book)]
           [:button
            {:disabled added
