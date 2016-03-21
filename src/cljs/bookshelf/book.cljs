@@ -32,9 +32,12 @@
       (actions/get-similar book-id owner))
     om/IRenderState
     (render-state [_ {:keys [similar]}]
-      (let [book (some #(when (= book-id (:book/id %)) %) books)]
+      (let [book     (some #(when (= book-id (:book/id %)) %) books)
+            existing (map :book/id books)]
         (html
          [:div#book
           [:h2 (:book/title book)]
           (book-details book)
-          (om/build similar/similar similar)])))))
+          (om/build similar/similar
+                    similar
+                    {:opts {:existing existing}})])))))

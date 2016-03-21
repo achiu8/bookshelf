@@ -12,10 +12,10 @@
   (om/set-state! owner :added true)
   (put! select-ch book))
 
-(defn similar-book [book owner]
+(defn similar-book [book owner {:keys [existing]}]
   (reify
     om/IInitState
-    (init-state [_] {:added false})
+    (init-state [_] {:added (boolean ((set existing) (:book/id book)))})
     om/IRenderState
     (render-state [_ {:keys [added]}]
       (let [select-ch (om/get-shared owner :select-ch)]
@@ -28,7 +28,7 @@
             :on-click #(handle-add % book owner select-ch)}
            (if added "Added" "Add")]])))))
 
-(defn similar [similar owner]
+(defn similar [similar owner {:keys [existing]}]
   (reify
     om/IInitState
     (init-state [_] {:expanded false})
@@ -37,7 +37,9 @@
       (html
        [:div
         [:h3 "Similar"]
-        (om/build-all similar-book (to-display expanded similar))
+        (om/build-all similar-book
+                      (to-display expanded similar)
+                      {:opts {:existing existing}})
         [:span.clickable
          {:style {:display (when expanded "none")}
           :on-click #(om/set-state! owner :expanded true)}
