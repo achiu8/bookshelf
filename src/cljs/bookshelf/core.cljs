@@ -13,7 +13,9 @@
    {:page      :shelf
     :book-id   nil
     :books     []
-    :select-ch (chan)}))
+    :select-ch (chan)
+    :author {:id nil
+             :books []}}))
 
 (def target (.getElementById js/document "app"))
 
