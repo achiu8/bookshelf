@@ -1,10 +1,17 @@
 (ns bookshelf.author
   (:require [cljs.core.async :as async :refer [put!]]
             [om.core :as om :include-macros true]
-            [sablono.core :as html :refer-macros [html]]))
+            [sablono.core :as html :refer-macros [html]]
+            [bookshelf.routes :as routes]))
 
 (defn handle-add [_ book select-ch]
   (put! select-ch book))
+
+(defn book [book]
+  (html
+   [:div
+    [:a.link {:href (routes/book-path {:id (:book/id book)})}
+     (:book/title book)]]))
 
 (defn addable-book [book select-ch]
   (html
@@ -19,7 +26,7 @@
     (html
      [:div
       [:h3 "Added"]
-      (map #(html [:div (:book/title %)]) books)])))
+      (map book books)])))
 
 (defn other-books-container [books any-added select-ch]
   (html
