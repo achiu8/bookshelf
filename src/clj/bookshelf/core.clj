@@ -47,6 +47,7 @@
   (let [fields   {:book/id          [:id]
                   :book/title       [:title]
                   :book/author      [:authors :author :name]
+                  :book/author-id   [:authors :author :id]
                   :book/description [:description]
                   :book/rating      [:average_rating]
                   :book/pages       [:num_pages]
@@ -58,9 +59,10 @@
 
 (defn similar-books [data]
   (let [books-data (xml/get-tag data :similar_books)
-        fields     {:book/id     [:id]
-                    :book/title  [:title_without_series]
-                    :book/author [:authors :author :name]}]
+        fields     {:book/id        [:id]
+                    :book/title     [:title_without_series]
+                    :book/author    [:authors :author :name]
+                    :book/author-id [:authors :author :id]}]
     (map #(xml/get-fields (:content %) fields) books-data)))
 
 (defn book-summary [data]
