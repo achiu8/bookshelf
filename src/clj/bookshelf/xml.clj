@@ -24,9 +24,9 @@
                            fields
                            (keys fields)))))
 
-(defn extract-book [extraction-fn parsed]
+(defn extract [field extraction-fn parsed]
   (-> parsed
-      (get-tag :book)
+      (get-tag field)
       extraction-fn))
 
 (defn extract-books [extraction-fn parsed]

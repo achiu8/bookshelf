@@ -17,7 +17,8 @@
 (defn goodreads-api [endpoint query]
   (condp = endpoint
     :search (str "/search/index.xml?q=" query "&")
-    :book   (str "/book/show/" query ".xml?")))
+    :book   (str "/book/show/" query ".xml?")
+    :author (str "/author/show/" query ".xml?")))
 
 (defn api [endpoint query]
   (slurp (str base (goodreads-api endpoint query) "key=" key)))
@@ -72,8 +73,11 @@
                 :book/author [:author :name]}]
     (xml/get-fields result fields)))
 
-(defn index []
-  (file-response "public/html/index.html" {:root "resources"}))
+(defn author-details [data]
+  (let [fields   {:author/id          [:id]
+                  :author/name        [:name]
+                  :author/about       [:about]}]
+    (xml/get-fields data fields)))
 
 (defn books []
   (let [db (d/db conn)
@@ -89,7 +93,7 @@
   (->> id
        (api :book)
        xml/parse-xml
-       (xml/extract-book extraction-fn)))
+       (xml/extract :book extraction-fn)))
 
 (defn create-book [params]
   (let [details     (get-book (:book/id params) book-details)
@@ -131,6 +135,16 @@
 (defn get-similar [id]
   (generate-response (get-book id similar-books)))
 
+(defn get-author [id]
+  (->> id
+       (api :author)
+       xml/parse-xml
+       (xml/extract :author author-details)
+       generate-response))
+
+(defn index []
+  (file-response "public/html/index.html" {:root "resources"}))
+
 (defroutes routes
   (GET    "/"      [] (index))
   (GET    "/books" [] (books))
@@ -152,6 +166,9 @@
   (DELETE "/books/:id/delete"
           {params :params}
           (delete-book (:id params)))
+  (GET    "/authors/:id"
+          {params :params}
+          (get-author (:id params)))
   (route/files "/" {:root "resources/public"}))
 
 (def handler 
