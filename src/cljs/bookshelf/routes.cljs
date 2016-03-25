@@ -7,18 +7,25 @@
 
 (secretary/set-config! :prefix "#")
 
-(defn navigation-handler [endpoint app-state args]
-  (xhr/xhr {:method      :get
-            :url         (name endpoint)
-            :on-complete #(apply swap! app-state assoc :books % args)}))
+(defn nav-handler
+  ([url page app-state args]
+   (nav-handler url page nil app-state args))
+  ([url page data app-state args]
+   (xhr/xhr {:method      :get
+             :url         url
+             :data        data
+             :on-complete #(apply swap! app-state assoc page % args)})))
 
 (defn define-routes! [app-state history-container]
   (defroute root-path "/" []
-    (navigation-handler :books app-state [:page :shelf]))
+    (nav-handler "/books" :books app-state [:page :shelf]))
 
   (defroute book-path "/books/:id" [id]
-    (navigation-handler :books app-state [:page :book :book-id id]))
+    (nav-handler "/books" :books app-state [:page :book :book-id id]))
   
+  (defroute author-path "/authors/:id" [id]
+    (nav-handler (str "/authors/" id) :authors app-state [:page :author]))
+
   (let [history (History. false nil history-container)]
     (goog.events/listen history
                         EventType/NAVIGATE
