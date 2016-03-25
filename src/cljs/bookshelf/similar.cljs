@@ -1,7 +1,8 @@
 (ns bookshelf.similar
   (:require [cljs.core.async :as async :refer [put!]]
             [om.core :as om :include-macros true]
-            [sablono.core :as html :refer-macros [html]]))
+            [sablono.core :as html :refer-macros [html]]
+            [bookshelf.routes :as routes]))
 
 (defn link [id]
   (str "https://www.goodreads.com/book/show/" id))
@@ -25,8 +26,10 @@
         (html
          [:div
           [:div.inline.similar.title
-           [:a.book-link {:href (link (:book/id book))} (:book/title book)]]
-          [:div.inline.similar.author (:book/author book)]
+           [:a.link {:href (link (:book/id book))} (:book/title book)]]
+          [:div.inline.similar.author
+           [:a.link {:href (routes/author-path {:id (:book/author-id book)})}
+            (:book/author book)]]
           [:button
            {:disabled added
             :on-click #(handle-add % book owner select-ch)}

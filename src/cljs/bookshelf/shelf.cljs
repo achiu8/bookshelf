@@ -20,9 +20,11 @@
   (html
    [:tr
     [:td
-     [:a.book-link {:href (routes/book-path {:id (:book/id book)})}
+     [:a.link {:href (routes/book-path {:id (:book/id book)})}
       (:book/title book)]]
-    [:td (:book/author book)]
+    [:td
+     [:a.link {:href (routes/author-path {:id (:book/author-id book)})}
+      (:book/author book)]]
     [:td
      (om/build selectable/selectable
                book

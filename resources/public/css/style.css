@@ -1,9 +1,9 @@
-.book-link {
+.link {
   text-decoration: none;
   color: black;
 }
 
-.book-link:hover {
+.link:hover {
   text-decoration: underline;
 }
 
