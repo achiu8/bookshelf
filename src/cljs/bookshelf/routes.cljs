@@ -24,7 +24,7 @@
     (nav-handler "/books" :books app-state [:page :book :book-id id]))
   
   (defroute author-path "/authors/:id" [id]
-    (nav-handler (str "/authors/" id) :authors app-state [:page :author]))
+    (nav-handler (str "/authors/" id) :author app-state [:page :author]))
 
   (let [history (History. false nil history-container)]
     (goog.events/listen history
