@@ -1,10 +1,6 @@
 (ns bookshelf.author
   (:require [om.core :as om :include-macros true]
-            [sablono.core :as html :refer-macros [html]]
-            [bookshelf.xhr :as xhr]
-            [bookshelf.actions :as actions]
-            [bookshelf.selectable :as selectable]
-            [bookshelf.similar :as similar]))
+            [sablono.core :as html :refer-macros [html]]))
 
 (defn author [{:keys [author]} owner]
   (reify
@@ -13,4 +9,4 @@
       (html
        [:div#book
         [:h2 (:author/name author)]
-        [:p (:author/about author)]]))))
+        [:p {:dangerouslySetInnerHTML {:__html (:author/about author)}}]]))))
