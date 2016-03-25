@@ -1,27 +1,31 @@
 (ns bookshelf.author
-  (:require [om.core :as om :include-macros true]
+  (:require [cljs.core.async :as async :refer [put!]]
+            [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]))
 
-(defn book [book]
-  (reify
-    om/IRender
-    (render [_]
-      (html
-       [:div
-        [:div (:book/title book)]]))))
+(defn handle-add [_ book select-ch]
+  (put! select-ch book))
+
+(defn addable-book [book select-ch]
+  (html
+   [:div
+    [:div.inline.title (:book/title book)]
+    [:button
+     {:on-click #(handle-add % book select-ch)}
+     "Add"]]))
 
 (defn added-books-container [books]
   (when (not-empty books)
     (html
      [:div
       [:h3 "Added"]
-      (om/build-all book books)])))
+      (map #(html [:div (:book/title %)]) books)])))
 
-(defn other-books-container [books any-added]
+(defn other-books-container [books any-added select-ch]
   (html
    [:div
     [:h3 (if any-added "Other" "Books")]
-    (om/build-all book books)]))
+    (map #(addable-book % select-ch) books)]))
 
 (defn author [{:keys [author books]} owner]
   (reify
@@ -35,4 +39,6 @@
           [:h2 (:author/name author)]
           [:p {:dangerouslySetInnerHTML {:__html (:author/about author)}}]
           (added-books-container added-books)
-          (other-books-container other-books (not-empty added-books))])))))
+          (other-books-container other-books
+                                 (not-empty added-books)
+                                 (om/get-shared owner :select-ch))])))))
