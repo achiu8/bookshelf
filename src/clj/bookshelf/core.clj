@@ -74,10 +74,11 @@
     (xml/get-fields result fields)))
 
 (defn author-details [data]
-  (let [fields   {:author/id          [:id]
-                  :author/name        [:name]
-                  :author/about       [:about]}]
-    (xml/get-fields data fields)))
+  (let [fields {:author/id          [:id]
+                :author/name        [:name]
+                :author/about       [:about]}
+        books  (map #(book-details (:content %)) (xml/get-tag data :books))]
+    (assoc (xml/get-fields data fields) :author/books books)))
 
 (defn books []
   (let [db (d/db conn)

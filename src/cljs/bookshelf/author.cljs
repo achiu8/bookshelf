@@ -14,10 +14,13 @@
   (reify
     om/IRender
     (render [_]
+      (println author)
       (let [added-books (filter #(= (:author/id author) (:book/author-id %)) books)]
         (html
          [:div#book
           [:h2 (:author/name author)]
           [:p {:dangerouslySetInnerHTML {:__html (:author/about author)}}]
           [:h3 "Added"]
-          (om/build-all book added-books)])))))
+          (om/build-all book added-books)
+          [:h3 "Other"]
+          (om/build-all book (:author/books author))])))))
