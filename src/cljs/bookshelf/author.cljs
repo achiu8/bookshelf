@@ -16,7 +16,7 @@
 (defn addable-book [book select-ch]
   (html
    [:div
-    [:div.inline.title (:book/title book)]
+    [:div.inline.truncated.title (:book/title book)]
     [:button
      {:on-click #(handle-add % book select-ch)}
      "Add"]]))

@@ -23,7 +23,7 @@
   display: inline-block;
 }
 
-.similar {
+.truncated {
   margin-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;

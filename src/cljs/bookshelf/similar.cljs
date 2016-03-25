@@ -25,9 +25,9 @@
       (let [select-ch (om/get-shared owner :select-ch)]
         (html
          [:div
-          [:div.inline.similar.title
+          [:div.inline.truncated.title
            [:a.link {:href (link (:book/id book))} (:book/title book)]]
-          [:div.inline.similar.author
+          [:div.inline.truncated.author
            [:a.link {:href (routes/author-path {:id (:book/author-id book)})}
             (:book/author book)]]
           [:button
