@@ -4,7 +4,8 @@
             [bookshelf.xhr :as xhr]
             [bookshelf.actions :as actions]
             [bookshelf.selectable :as selectable]
-            [bookshelf.similar :as similar]))
+            [bookshelf.similar :as similar]
+            [bookshelf.routes :as routes]))
 
 (defn book-details [book]
   (html
@@ -16,7 +17,9 @@
                       {:opts {:select-key :book/status
                               :on-select  (actions/edit-book book)
                               :styles     {:display "inline-block"}}})]]
-    [:p (:book/author book)]
+    [:p
+     [:a.link {:href (routes/author-path {:id (:book/author-id book)})}
+      (:book/author book)]]
     [:p (:book/rating book)]
     [:p (:book/year book)]
     [:p (str (:book/pages book) " pages")]
