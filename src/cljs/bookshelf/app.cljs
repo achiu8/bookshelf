@@ -1,6 +1,7 @@
 (ns bookshelf.app
   (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [sablono.core :as html :refer-macros [html]]
+            [bookshelf.nav :as nav]
             [bookshelf.shelf :as shelf]
             [bookshelf.book :as book]
             [bookshelf.author :as author]))
@@ -15,4 +16,7 @@
   (reify
     om/IRender
     (render [_]
-      (om/build (pages app) app))))
+      (html
+       [:div
+        (om/build nav/nav app)
+        (om/build (pages app) app)]))))
